@@ -1,0 +1,32 @@
+[project]
+name = "limivia"
+version = "0.1.0"
+description = "LIMIVIA 莉米维娅：连接数字世界与物理世界的硬件实验工作台"
+authors = [{name = "migo", email = "1695587905@qq.com"}]
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = ["typer>=0.15,<1", "fastapi[standard]>=0.115,<1", "pyserial>=3.5,<4"]
+
+[tool.poetry]
+packages = [{include = "limivia", from = "src"}]
+
+[tool.poetry.scripts]
+limivia = "limivia.commands.app:app"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8,<9"
+httpx = ">=0.28,<1"
+ruff = ">=0.11,<1"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[[tool.poetry.source]]
+name = "tuna"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "primary"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
