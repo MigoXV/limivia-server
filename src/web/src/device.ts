@@ -1,6 +1,3 @@
-export const SERVICE = '7b9d0001-7a21-4c9b-8b30-69e5ce1d0001'
-export const RX = '7b9d0002-7a21-4c9b-8b30-69e5ce1d0001'
-export const TX = '7b9d0003-7a21-4c9b-8b30-69e5ce1d0001'
 export type LinkKind = 'usb' | 'ble'
 export type PinMode = 'idle' | 'input' | 'output' | 'pwm' | 'adc' | 'timer'
 export interface Pin {
@@ -71,7 +68,7 @@ export type Message = {
 export const PIN_NUMBERS = [0, 1, 3, 4, 5, 6, 7, 10, 13, 20, 21]
 
 export interface Transport {
-  connect(onData: (text: string) => void, onClose: () => void): Promise<void>
+  connect(onData: (text: string) => void, onClose: (reason?: string) => void): Promise<void>
   write(data: Uint8Array): Promise<void>
   disconnect(): Promise<void>
 }
@@ -100,91 +97,78 @@ export class LineReader {
   }
 }
 
-class SerialTransport implements Transport {
-  private port?: SerialPort
-  private reader?: ReadableStreamDefaultReader<Uint8Array>
-  private writer?: WritableStreamDefaultWriter<Uint8Array>
-  private reading?: Promise<void>
+export interface DeviceOption {
+  id: string
+  name: string
+}
+
+export async function discoverDevices(kind: LinkKind): Promise<DeviceOption[]> {
+  let response: Response
+  try {
+    response = await fetch(`/api/device/discover?kind=${kind}`)
+  } catch {
+    throw new Error('无法访问后端，请检查工作台服务是否正在运行。')
+  }
+  const result = await response.json()
+  if (!response.ok) throw new Error(result.detail ?? '后端设备搜索失败，请稍后重试。')
+  return result.devices as DeviceOption[]
+}
+
+export class BackendTransport implements Transport {
+  private socket?: WebSocket
   private closing = false
-  async connect(onData: (text: string) => void, onClose: () => void) {
-    this.port = await navigator.serial.requestPort({
-      filters: [{ usbVendorId: 0x303a, usbProductId: 0x1001 }],
-    })
-    await this.port.open({ baudRate: 115200, bufferSize: 16384 })
-    if (!this.port.readable || !this.port.writable) throw new Error('串口未提供读写通道')
-    this.writer = this.port.writable.getWriter()
-    this.reader = this.port.readable.getReader()
-    const decoder = new TextDecoder()
-    this.reading = (async () => {
-      try {
-        while (!this.closing) {
-          const { value, done } = await this.reader!.read()
-          if (done) break
-          if (value) onData(decoder.decode(value, { stream: true }))
+  constructor(
+    private readonly kind: LinkKind,
+    private readonly target: string,
+  ) {}
+  async connect(onData: (text: string) => void, onClose: (reason?: string) => void) {
+    const url = new URL('/api/device/connect', window.location.href)
+    url.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    url.searchParams.set('kind', this.kind)
+    url.searchParams.set('target', this.target)
+    const socket = new WebSocket(url)
+    this.socket = socket
+    await new Promise<void>((resolve, reject) => {
+      let connected = false
+      let failure = ''
+      const timer = setTimeout(() => {
+        reject(new Error('后端连接超时，请检查设备供电和后端服务后重试。'))
+        socket.close()
+      }, 25000)
+      socket.onmessage = (event) => {
+        const message = JSON.parse(event.data)
+        if (message.type === 'connected') {
+          connected = true
+          clearTimeout(timer)
+          resolve()
+        } else if (message.type === 'data') onData(message.data)
+        else if (message.type === 'error') {
+          failure = message.message
+          if (!connected) {
+            clearTimeout(timer)
+            reject(new Error(failure))
+          }
+          socket.close()
         }
-      } catch {
-        /* disconnect is reported below */
-      } finally {
-        this.reader?.releaseLock()
-        this.reader = undefined
-        if (!this.closing) onClose()
       }
-    })()
+      socket.onerror = () => {
+        failure ||= '无法连接后端设备通道，请检查工作台服务后重试。'
+      }
+      socket.onclose = () => {
+        clearTimeout(timer)
+        if (!connected) reject(new Error(failure || '后端设备连接已关闭，请重新搜索并连接。'))
+        else if (!this.closing) onClose(failure || undefined)
+      }
+    })
   }
   async write(data: Uint8Array) {
-    if (!this.writer) throw new Error('USB 连接已关闭')
-    await this.writer.write(data)
+    if (this.socket?.readyState !== WebSocket.OPEN) throw new Error('后端设备连接已关闭')
+    this.socket.send(new TextDecoder().decode(data))
   }
   async disconnect() {
     this.closing = true
-    await this.reader?.cancel().catch(() => {})
-    await this.reading
-    this.writer?.releaseLock()
-    this.writer = undefined
-    await this.port?.close().catch(() => {})
-    this.port = undefined
-  }
-}
-
-class BluetoothTransport implements Transport {
-  private device?: BluetoothDevice
-  private rx?: BluetoothRemoteGATTCharacteristic
-  private tx?: BluetoothRemoteGATTCharacteristic
-  private closeHandler?: () => void
-  private dataHandler?: EventListener
-  async connect(onData: (text: string) => void, onClose: () => void) {
-    this.device = await navigator.bluetooth.requestDevice({ filters: [{ services: [SERVICE] }] })
-    this.closeHandler = onClose
-    this.device.addEventListener('gattserverdisconnected', onClose)
-    const server = await this.device.gatt?.connect()
-    if (!server) throw new Error('蓝牙 GATT 连接失败')
-    const service = await server.getPrimaryService(SERVICE)
-    this.rx = await service.getCharacteristic(RX)
-    this.tx = await service.getCharacteristic(TX)
-    const decoder = new TextDecoder()
-    this.dataHandler = () => {
-      const value = this.tx?.value
-      if (value) onData(decoder.decode(value, { stream: true }))
-    }
-    this.tx.addEventListener('characteristicvaluechanged', this.dataHandler)
-    await this.tx.startNotifications()
-  }
-  async write(data: Uint8Array) {
-    if (!this.rx) throw new Error('BLE 连接已关闭')
-    // 20 bytes works at the mandatory ATT MTU, including browsers that hide MTU.
-    for (let offset = 0; offset < data.length; offset += 20) {
-      await this.rx.writeValueWithResponse(data.slice(offset, offset + 20))
-    }
-  }
-  async disconnect() {
-    if (this.dataHandler)
-      this.tx?.removeEventListener('characteristicvaluechanged', this.dataHandler)
-    if (this.closeHandler)
-      this.device?.removeEventListener('gattserverdisconnected', this.closeHandler)
-    this.device?.gatt?.disconnect()
-    this.rx = undefined
-    this.tx = undefined
-    this.device = undefined
+    this.socket?.close()
+    this.socket = undefined
   }
 }
 
@@ -198,13 +182,6 @@ const errors: Record<string, string> = {
   unknown_operation: '当前固件不支持此操作。',
 }
 export function friendlyError(error: unknown): string {
-  if (error instanceof DOMException) {
-    if (error.name === 'NotFoundError') return '已取消设备选择，或未发现匹配的设备。'
-    if (error.name === 'SecurityError' || error.name === 'NotAllowedError')
-      return '浏览器未授予设备权限，请在站点设置中检查权限后重新连接。'
-    if (error.name === 'NetworkError')
-      return '设备连接失败。检查 USB 占用、蓝牙状态与设备供电后重试。'
-  }
   return error instanceof Error ? error.message : String(error)
 }
 
@@ -221,10 +198,10 @@ export class DeviceClient {
   private chain: Promise<unknown> = Promise.resolve()
   onEvent: (message: Message) => void = () => {}
   onLog: (direction: string, text: string) => void = () => {}
-  onClose: () => void = () => {}
+  onClose: (reason?: string) => void = () => {}
   setHandlers(handlers: {
     onLog?: (direction: string, text: string) => void
-    onClose?: () => void
+    onClose?: (reason?: string) => void
     onEvent?: (message: Message) => void
   }) {
     this.onLog = handlers.onLog ?? (() => {})
@@ -234,21 +211,20 @@ export class DeviceClient {
   get busy() {
     return this.pending !== undefined
   }
-  async connect(kind: LinkKind, transport?: Transport): Promise<Hello> {
+  async connect(kind: LinkKind, target: string | Transport = ''): Promise<Hello> {
     if (this.transport) throw new Error('请先断开当前设备')
     const gen = ++this.generation
-    this.transport =
-      transport ?? (kind === 'usb' ? new SerialTransport() : new BluetoothTransport())
+    this.transport = typeof target === 'string' ? new BackendTransport(kind, target) : target
     const parser = new LineReader((line) => {
       if (gen === this.generation) this.receive(line)
     })
     try {
       await this.transport.connect(
         (text) => parser.push(text),
-        () => {
+        (reason) => {
           if (gen !== this.generation) return
           void this.disconnect()
-          this.onClose()
+          this.onClose(reason)
         },
       )
       const hello = await this.request<Hello>('hello')

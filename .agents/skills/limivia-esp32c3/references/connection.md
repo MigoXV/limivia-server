@@ -2,20 +2,22 @@
 
 本资料仅覆盖 LIMIVIA 工作台的设备接入。固件构建、烧录、驱动调试及实机验证工具由独立的 `limivia-esp32` 仓库维护，本仓库不依赖该目录存在。
 
-## 浏览器能力
+## 后端设备连接
 
-- Web Serial 用于 USB；Web Bluetooth 用于 BLE GATT。需要安全上下文和用户操作触发设备选择；本机使用 `http://localhost:8000` 或 `http://127.0.0.1:8000`。
-- HTTP 局域网 IP 不等同于 localhost。手机要访问本工作台需另行提供可访问且受信任的 HTTPS；首版不配置远程部署。
-- Chromium 的 Linux Web Bluetooth 支持可能需要实验特性，而且依赖实际可工作的系统 Bluetooth/BlueZ 控制器。
-- 浏览器不存在对应 API 时显示不可用，不伪造连接、不自动改用后端通道。
-- BLE 服务名 `LIMIVIA-xxxx`，具体服务与特征 UUID 以工程协议文档为准。
+- 默认 BLE，后端用 Bleak 搜索服务 UUID 并订阅 GATT 通知；USB 用 pySerial 打开匹配 VID/PID 的原生串口，115200、DTR/RTS 均为 false。最终由 `hello` 检查板型和协议，不仅凭名称或 VID/PID 判断。
+- 网页先“搜索设备”，再选择与连接。浏览器只需同源 HTTP/WebSocket，不依赖 Web Serial / Web Bluetooth，不需要浏览器实验特性。
+- 所用串口和蓝牙适配器位于后端运行环境。WSL、容器与虚拟机需要自行提供设备或系统蓝牙服务，网页端口转发不转发硬件。
+- Linux BLE 需要可用控制器、BlueZ 与系统 D-Bus 权限；USB 需要后端用户的串口权限。Windows/macOS 需允许运行后端的应用使用蓝牙。
+- 后端只允许一个页面占用连接；关闭页面或断线会取消桥接并释放设备。运行单进程、单 worker；切换通道先断开，超时的写操作不自动重试。
+- `/api/device/discover?kind=ble|usb` 返回候选或可恢复错误，`/api/device/connect?kind=...&target=...` 为同源 WebSocket 通道。服务端只连接最近搜索到的候选，不允许客户端直接指定任意串口路径。
+- BLE 服务名 `LIMIVIA-xxxx`，具体服务与特征 UUID 以工程协议文档为准。缺少真实设备时明确记录实机未验证，不用模拟数据冒充连接成功。
 
 ## USB 排查
 
-- 本板没有 USB-UART 桥，使用 ESP32-C3 原生 USB Serial/JTAG。先确认数据线、供电、浏览器能力和串口权限；串口被监视器占用时先关闭监视器。
+- 本板没有 USB-UART 桥，使用 ESP32-C3 原生 USB Serial/JTAG。先确认数据线、供电、后端串口权限；串口被监视器占用时先关闭监视器。
 - Linux 常见端口为 `/dev/ttyACM*`，优先通过 `/dev/serial/by-id/` 识别；编号及 VID:PID 不能单独证明板型。
 - 正常复位仍无法连接时，按住 BOOT，再按下并松开 RST，最后松开 BOOT，重新枚举端口。下载模式不提供工作台协议；烧录恢复须切换到固件仓库执行。
 - GPIO18/19 必须保留给 USB，不建议用 eFuse 写入恢复连接。
 - 连接成功后读取 `hello` 和 `state`；仅断开连接不会停止输出，恢复时不把页面旧值写回板卡。
 
-来源与核验日期沿用迁移前资料：2026-10-21。[Chrome Web Serial](https://developer.chrome.com/docs/capabilities/serial)、[Chrome Web Bluetooth](https://developer.chrome.com/docs/capabilities/bluetooth)、[乐鑫串口连接](https://docs.espressif.com/projects/esp-idf/en/v6.0.2/esp32c3/get-started/establish-serial-connection.html)。
+来源与核验日期：2026-10-21。[Bleak](https://bleak.readthedocs.io/en/latest/)、[pySerial](https://pyserial.readthedocs.io/en/stable/pyserial_api.html)、[乐鑫串口连接](https://docs.espressif.com/projects/esp-idf/en/v6.0.2/esp32c3/get-started/establish-serial-connection.html)。

@@ -6,6 +6,8 @@ for (const kind of ['usb', 'ble'] as const) {
     await installDevice(page, kind)
     await page.goto('/')
     await page.getByLabel('连接方式').selectOption(kind)
+    await page.getByRole('button', { name: '搜索设备' }).click()
+    await expect(page.getByLabel('后端设备')).toHaveValue('test-device')
     await page.getByRole('button', { name: '连接设备' }).click()
     await expect(page.getByText('设备已就绪', { exact: true })).toBeVisible()
     await page.getByRole('button', { name: '点亮 LED', exact: true }).click()

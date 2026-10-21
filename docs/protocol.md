@@ -1,15 +1,17 @@
 # LIMIVIA 设备协议 v1
 
-本文件为前端、固件与未来 AI 工具共享的协议真源。前端实现位于 `src/web/src/device.ts`；ESP32 固件已独立至 `limivia-esp32` 仓库的 `main/control.c`、`main/transport.c`。固件仓库保留注明来源提交的协议快照，以支持独立检出和构建。协议变更需同步两仓库实现、快照及兼容性测试；握手中的 `protocol` 是兼容性边界，固件版本独立发布。
+本文件为工作台、固件与未来 AI 工具共享的协议真源。网页协议客户端位于 `src/web/src/device.ts`，后端硬件传输与桥接位于 `src/limivia/devices`；ESP32 固件已独立至 `limivia-esp32` 仓库的 `main/control.c`、`main/transport.c`。固件仓库保留注明来源提交的协议快照，以支持独立检出和构建。协议变更需同步两仓库实现、快照及兼容性测试；握手中的 `protocol` 是兼容性边界，固件版本独立发布。
+
+本次仅将宿主硬件传输从浏览器迁到 Python 后端，设备协议 v1、操作、UUID 与固件行为保持不变，无需重新烧录。网页与后端的桥接约定见 [后端控制通道](backend-control.md)。
 
 ## 连接与帧
 
-- USB：ESP32-C3 原生 USB Serial/JTAG，Web Serial 以 115200 打开；此波特率是浏览器串口参数，原生 USB 不以该速率模拟 UART 位时序。
+- USB：ESP32-C3 原生 USB Serial/JTAG，后端 pySerial 以 115200 打开；此波特率是宿主串口参数，原生 USB 不以该速率模拟 UART 位时序。
 - BLE：NimBLE peripheral，单客户端，名称 `LIMIVIA-xxxx`；服务 `7b9d0001-7a21-4c9b-8b30-69e5ce1d0001`，RX write-with-response 特征 `7b9d0002-7a21-4c9b-8b30-69e5ce1d0001`，TX notify 特征 `7b9d0003-7a21-4c9b-8b30-69e5ce1d0001`。
 - UTF-8 JSON 对象加 LF。请求内容最多 1024 bytes（不含 LF），最大嵌套 16 层；前端接收帧最多 8192 characters。每条请求显式包含 `v`、`id`、`op`、`params`。
-- BLE 前端每段最多 20 bytes，顺序等待 write-with-response；固件通知按实际 ATT MTU 分片。两端按 LF 重组，不把一次 characteristic write/notification 当完整消息。跨分片 UTF-8 使用流式解码。
+- BLE 后端每段最多 20 bytes，顺序等待 write-with-response；固件通知按实际 ATT MTU 分片。两端按 LF 重组，不把一次 characteristic write/notification 当完整消息。跨分片 UTF-8 使用流式解码。
 - 固件对超长、NUL 或间隔超过 3 秒的未完成请求丢弃至 LF，返回无请求 ID 的 `invalid_request`，随后恢复解析。发送方不得暂停半帧后继续使用旧内容。
-- 连接先订阅 BLE 通知，再 `hello`。USB 与 BLE 复用相同协议；每个浏览器仅选择一种连接。固件把两路命令串行执行，以最后完成的合法命令为准。
+- 连接先订阅 BLE 通知，再 `hello`。USB 与 BLE 复用相同协议；工作台后端同一时刻仅开放一个页面的一种连接。固件把两路命令串行执行，以最后完成的合法命令为准。
 - 请求队列 8 条，浏览器每次只保持 1 条在途请求；超过固件队列容量的请求可能超时。实时通知队列 16 条，慢消费者允许丢通知，通过 `state` 恢复。
 
 ```json

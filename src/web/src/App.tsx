@@ -1,8 +1,11 @@
+import { Board } from './Board'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   DeviceClient,
   PIN_NUMBERS,
   friendlyError,
+  discoverDevices,
+  type DeviceOption,
   type Hello,
   type LinkKind,
   type PinMode,
@@ -92,74 +95,6 @@ function NumberField({
     </label>
   )
 }
-function Board({
-  state,
-  selected,
-  ready,
-}: {
-  state: Snapshot | null
-  selected: number
-  ready: boolean
-}) {
-  const left = [0, 1, 12, 18, 19, 20, 21, 13]
-  const right = [3, 2, 4, 5, 6, 7, 8, 9]
-  return (
-    <div className="board-wrap">
-      <svg
-        className="board"
-        viewBox="0 0 280 350"
-        role="img"
-        aria-label={`合宙 ESP32-C3 功能示意，选中 GPIO ${selected}；非接线比例图`}
-      >
-        <rect className="pcb" x="65" y="20" width="150" height="300" rx="8" />
-        <path className="antenna" d="M85 60V40h15v20h15V40h15v20h15V40h15v20h15V40h20v25" />
-        <rect className="chip" x="102" y="105" width="76" height="76" rx="3" />
-        <text className="chip-label" x="140" y="137" textAnchor="middle">
-          ESP32
-        </text>
-        <text className="chip-label" x="140" y="158" textAnchor="middle">
-          C3
-        </text>
-        <text className="board-small" x="140" y="207" textAnchor="middle">
-          CORE · USB
-        </text>
-        <circle
-          className={ready && (state?.ble_connected || state?.usb_active) ? 'led active' : 'led'}
-          cx="118"
-          cy="238"
-          r="5"
-        />
-        <circle
-          className={
-            ready && state?.pins.find((p) => p.pin === 13)?.level === 1 ? 'led active' : 'led'
-          }
-          cx="162"
-          cy="238"
-          r="5"
-        />
-        <text className="board-small" x="118" y="258" textAnchor="middle">
-          D4
-        </text>
-        <text className="board-small" x="162" y="258" textAnchor="middle">
-          D5
-        </text>
-        <rect className="usb" x="120" y="287" width="40" height="43" rx="5" />
-        <rect className="usb-slot" x="127" y="310" width="26" height="10" rx="3" />
-        {[left, right].map((list, side) =>
-          list.map((pin, i) => (
-            <g key={`${side}-${pin}`} className={selected === pin ? 'pin selected-pin' : 'pin'}>
-              <rect x={side ? 208 : 58} y={80 + i * 25} width="14" height="9" rx="1" />
-              <text x={side ? 235 : 45} y={88 + i * 25} textAnchor={side ? 'start' : 'end'}>
-                {String(pin).padStart(2, '0')}
-              </text>
-            </g>
-          )),
-        )}
-      </svg>
-      <p className="caption">功能位置示意 · 接线请核对板上丝印</p>
-    </div>
-  )
-}
 function Chart({ samples }: { samples: Sample[] }) {
   const points = samples
     .map(
@@ -197,7 +132,10 @@ function Chart({ samples }: { samples: Sample[] }) {
 export default function App() {
   const [client] = useState(() => new DeviceClient())
   const [section, setSection] = useState<Section>('led')
-  const [link, setLink] = useState<LinkKind>('usb')
+  const [link, setLink] = useState<LinkKind>('ble')
+  const [devices, setDevices] = useState<DeviceOption[]>([])
+  const [target, setTarget] = useState('')
+  const [searching, setSearching] = useState(false)
   const [status, setStatus] = useState<Status>('disconnected')
   const [hello, setHello] = useState<Hello | null>(null)
   const [state, setState] = useState<Snapshot | null>(null)
@@ -230,10 +168,6 @@ export default function App() {
   const sample = samples.filter((s) => s.pin === adcPin).at(-1)
   const activePwm = state?.pwm.find((p) => p.pin === selectedPin)
   const activeStream = state?.streams.find((p) => p.pin === adcPin)
-  const supported =
-    typeof window !== 'undefined' &&
-    window.isSecureContext &&
-    (link === 'usb' ? 'serial' in navigator : 'bluetooth' in navigator)
   const log = useCallback((direction: string, text: string) => {
     const item = {
       id: ++logId.current,
@@ -250,10 +184,10 @@ export default function App() {
   useEffect(() => {
     client.setHandlers({
       onLog: log,
-      onClose: () => {
+      onClose: (reason) => {
         setStatus('lost')
         setStale(true)
-        setError('设备连接已断开。板上定时与 PWM 可能仍在运行，请重新连接查看。')
+        setError(reason ?? '设备连接已断开。板上定时与 PWM 可能仍在运行，请重新连接查看。')
         log('连接', '设备已断开')
       },
       onEvent: (message) => {
@@ -291,13 +225,30 @@ export default function App() {
     }
   }, [client, ready, busy])
 
+  async function searchDevices() {
+    setSearching(true)
+    setError('')
+    setNotice('')
+    setDevices([])
+    setTarget('')
+    try {
+      const found = await discoverDevices(link)
+      setDevices(found)
+      if (found.length === 1) setTarget(found[0].id)
+      if (!found.length) setNotice('未发现设备，请检查后端电脑的连接、设备供电后重新搜索。')
+    } catch (err) {
+      setError(friendlyError(err))
+    } finally {
+      setSearching(false)
+    }
+  }
   async function connect() {
     setError('')
     setNotice('')
     setStatus('connecting')
     setStale(true)
     try {
-      const result = await client.connect(link)
+      const result = await client.connect(link, target)
       setHello(result)
       setState(result.state)
       setSamples([])
@@ -448,7 +399,9 @@ export default function App() {
                 <small>
                   {hello && ready
                     ? `${hello.device_id} · v${hello.firmware}`
-                    : '选择连接方式，并授权浏览器访问设备'}
+                    : searching
+                      ? '正在搜索后端电脑上的设备…'
+                      : '通过后端电脑连接设备，默认使用蓝牙'}
                 </small>
               </div>
             </div>
@@ -459,12 +412,48 @@ export default function App() {
               <select
                 id="transport"
                 value={link}
-                disabled={ready || status === 'connecting'}
-                onChange={(e) => setLink(e.target.value as LinkKind)}
+                disabled={ready || searching || status === 'connecting'}
+                onChange={(e) => {
+                  setLink(e.target.value as LinkKind)
+                  setDevices([])
+                  setTarget('')
+                  setError('')
+                  setNotice('')
+                }}
               >
-                <option value="usb">USB 串口</option>
                 <option value="ble">BLE 蓝牙</option>
+                <option value="usb">USB 串口</option>
               </select>
+              {!ready && (
+                <>
+                  <button
+                    onClick={() => void searchDevices()}
+                    disabled={searching || status === 'connecting'}
+                  >
+                    {searching ? '搜索中…' : '搜索设备'}
+                  </button>
+                  {devices.length > 0 && (
+                    <>
+                      <label className="sr-only" htmlFor="device-target">
+                        后端设备
+                      </label>
+                      <select
+                        id="device-target"
+                        value={target}
+                        disabled={status === 'connecting'}
+                        onChange={(e) => setTarget(e.target.value)}
+                      >
+                        <option value="">选择设备</option>
+                        {devices.map((device) => (
+                          <option key={device.id} value={device.id}>
+                            {device.name}
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  )}
+                </>
+              )}
               {ready ? (
                 <button onClick={() => void disconnect()} disabled={busy}>
                   断开连接
@@ -473,7 +462,7 @@ export default function App() {
                 <button
                   className="primary"
                   onClick={() => void connect()}
-                  disabled={!supported || status === 'connecting'}
+                  disabled={!target || searching || status === 'connecting'}
                 >
                   {status === 'connecting' ? '连接中…' : '连接设备'}{' '}
                   <span aria-hidden="true">↗</span>
@@ -481,12 +470,7 @@ export default function App() {
               )}
             </div>
           </section>
-          {!supported && (
-            <p className="inline-help">
-              当前环境不支持{link === 'usb' ? ' Web Serial' : ' Web Bluetooth'}。请使用支持该能力的
-              Chromium 浏览器，并通过 localhost 或 HTTPS 打开；Linux 蓝牙可能需启用浏览器实验特性。
-            </p>
-          )}
+          <p className="inline-help">蓝牙和 USB 均使用后端电脑的设备；浏览器无需串口或蓝牙权限。</p>
           <div className="feedback" aria-live="polite">
             {error ? (
               <p className="error" role="alert">
