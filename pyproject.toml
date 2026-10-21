@@ -4,8 +4,10 @@ version = "0.1.0"
 description = "LIMIVIA 莉米维娅：连接数字世界与物理世界的硬件实验工作台"
 authors = [{name = "migo", email = "1695587905@qq.com"}]
 readme = "README.md"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE"]
 requires-python = ">=3.10,<3.13"
-dependencies = ["typer>=0.15,<1", "fastapi[standard]>=0.115,<1", "pyserial>=3.5,<4"]
+dependencies = ["typer>=0.15,<1", "fastapi[standard]>=0.156.8,<1"]
 
 [tool.poetry]
 packages = [{include = "limivia", from = "src"}]
