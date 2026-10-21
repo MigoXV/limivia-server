@@ -306,6 +306,7 @@ h1 > span {
 }
 .connection-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -343,8 +344,17 @@ h1 > span {
 }
 .connection-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  flex-shrink: 0;
+  min-width: 0;
+  max-width: 100%;
+}
+.connection-actions select {
+  min-width: 0;
+  max-width: 100%;
+}
+#device-target {
+  width: 240px;
 }
 .connection-actions .primary {
   min-width: 125px;
@@ -727,7 +737,7 @@ input[type='checkbox'] {
 }
 .board {
   display: block;
-  max-width: 250px;
+  max-width: 360px;
   width: 100%;
   margin: auto;
 }
@@ -770,23 +780,6 @@ input[type='checkbox'] {
 .usb-slot {
   fill: var(--surface-subtle);
   stroke: var(--border-strong);
-}
-.pin rect {
-  fill: var(--surface);
-  stroke: var(--border-strong);
-}
-.pin text {
-  fill: var(--text-secondary);
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-}
-.selected-pin rect {
-  fill: var(--accent);
-  stroke: var(--accent-strong);
-}
-.selected-pin text {
-  fill: var(--text-primary);
-  font-weight: 700;
 }
 .caption {
   color: var(--text-secondary);
@@ -981,7 +974,7 @@ dd {
     gap: 8px 24px;
   }
   .board-wrap {
-    display: none;
+    grid-column: 1 / -1;
   }
   .panel-heading {
     grid-column: 1 / -1;
@@ -1144,4 +1137,150 @@ dd {
 }
 .nav-item.active .nav-number {
   color: var(--text-primary);
+}
+
+/* 用户指定的接线语义颜色，仅作用于实物板图。 */
+.board-wrap {
+  --pin-5v: #dc2626;
+  --pin-ground: #111111;
+  --pin-3v3: #eab308;
+  --pin-analog: #2563eb;
+  --pin-digital: #16a34a;
+}
+.pin-5v {
+  --pin-color: var(--pin-5v);
+}
+.pin-ground {
+  --pin-color: var(--pin-ground);
+}
+.pin-3v3 {
+  --pin-color: var(--pin-3v3);
+}
+.pin-analog {
+  --pin-color: var(--pin-analog);
+}
+.pin-digital {
+  --pin-color: var(--pin-digital);
+}
+.pin-special {
+  --pin-color: var(--text-secondary);
+}
+.pin {
+  cursor: pointer;
+}
+.pin .pin-hit {
+  fill: transparent;
+  stroke: none;
+}
+.pin .pin-pad {
+  fill: var(--pin-color);
+  stroke: var(--text-secondary);
+  stroke-width: 1;
+}
+.pin text {
+  fill: var(--text-primary);
+  font:
+    13px ui-monospace,
+    monospace;
+}
+.pin.selected-pin .pin-pad {
+  stroke: var(--text-primary);
+  stroke-width: 3;
+  paint-order: stroke;
+}
+.pin.selected-pin text {
+  font-weight: 700;
+  text-decoration: underline;
+}
+.pin:focus {
+  outline: none;
+}
+.pin:focus .pin-hit,
+.pin.inspected-pin .pin-hit {
+  stroke: var(--text-primary);
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+}
+.board-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.board-controls button {
+  min-height: 32px;
+  padding: 4px 16px;
+}
+.board-controls button[aria-pressed='true'] {
+  border-color: var(--text-primary);
+  font-weight: 700;
+}
+.board-orientation,
+.board-detail,
+.board-help {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.board-orientation {
+  text-align: center;
+}
+.board-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 12px;
+  font-size: 12px;
+}
+.board-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.board-legend i {
+  width: 10px;
+  height: 10px;
+  background: var(--pin-color);
+  border: 1px solid var(--text-secondary);
+  border-radius: 2px;
+}
+.board-detail {
+  min-height: 64px;
+  margin: 16px 0 8px;
+}
+.board-help {
+  color: var(--text-secondary);
+}
+.board-expand {
+  width: 100%;
+  margin-top: 8px;
+}
+.board-dialog {
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 24px;
+  width: min(640px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+.board-dialog::backdrop {
+  background: var(--text-primary);
+  opacity: 0.45;
+}
+.board-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.board-dialog-heading h2 {
+  font-size: 16px;
+}
+.board-scroll {
+  overflow: auto;
+}
+.board-dialog .board {
+  width: 480px;
+  max-width: none;
 }
