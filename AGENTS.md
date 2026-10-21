@@ -1,0 +1,9 @@
+# LIMIVIA 工程约定
+
+- 使用中文沟通和维护 README。Python 用 Poetry，前端用 pnpm。
+- Python 后端位于 `src/limivia`；React 前端位于 `src/web`。ESP-IDF 固件及构建、烧录、实机验证工具独立于 `limivia-esp32` 仓库（本机位于 `../limivia-esp32`）。本仓库运行不依赖它的检出位置。
+- 控制链路为浏览器 Web Serial / Web Bluetooth 直连开发板。后端统一托管前端，CLI 负责启动工作台和检查环境。
+- 涉及板卡连接、引脚、电气边界或 USB/BLE 适配时，读取本仓库专用技能 [limivia-esp32c3](.agents/skills/limivia-esp32c3/SKILL.md)。固件开发读取固件仓库的 AGENTS.md 与专用 skill；各自资料不安装至全局技能目录。
+- 界面采用 MANAS 工作台关系与苍渊·白垣锁定 Token；首版默认白垣。组件不得散写品牌 HEX。
+- 默认验证：`poetry run pytest`、`poetry run ruff check src/limivia tests`、`pnpm --dir src/web run lint`、`pnpm --dir src/web test`、`pnpm --dir src/web run build`、`pnpm --dir src/web run test:e2e`。
+- `docs/protocol.md` 是跨仓库协议真源；变更需协同更新固件仓库的协议快照、实现与测试。主仓库不重新引入 ESP-IDF 源码、构建工具或 Python 串口依赖。
