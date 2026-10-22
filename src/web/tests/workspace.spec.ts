@@ -7,7 +7,7 @@ for (const width of [320, 768, 1280]) {
     await page.goto('/')
     await expect(page.locator('.connection-status')).toHaveText('未连接')
     await expect(page.getByRole('button', { name: '点亮 LED', exact: true })).toBeDisabled()
-    for (const name of ['数字引脚', 'PWM 调制', '模拟采集', '本地定时', '板载 LED']) {
+    for (const name of ['数字引脚', 'PWM 调制', '模拟采集', '板载定时', '板载 LED']) {
       await page
         .getByRole('button', { name: new RegExp(name) })
         .first()
@@ -109,7 +109,7 @@ test('workbench accessibility and 200% text zoom', async ({ page }) => {
   const { default: AxeBuilder } = await import('@axe-core/playwright')
   await page.setViewportSize({ width: 1280, height: 1000 })
   await page.goto('/')
-  for (const name of ['板载 LED', '数字引脚', 'PWM 调制', '模拟采集', '本地定时']) {
+  for (const name of ['板载 LED', '数字引脚', 'PWM 调制', '模拟采集', '板载定时']) {
     await page
       .getByRole('button', { name: new RegExp(name) })
       .first()

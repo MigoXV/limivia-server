@@ -2,7 +2,7 @@
 
 LIMIVIA 是一套以软件为核心、连接数字世界与物理世界的通用硬件操作与开发框架。它通过软件抽象和可视化交互，让具备软件或 AI 背景、缺乏硬件经验的人逐步理解并操纵真实设备。
 
-本仓库的发布名和启动命令为 **limivia-server**，Python 包名为 **limivia_server**。硬件控制、协议模型和事件流由独立的 [limivia Python SDK](../limivia/README.md) 提供，依赖方向为 `server → SDK → USB/BLE`。
+本仓库的发布名和启动命令为 **limivia-server**，Python 包名为 **limivia_server**。硬件控制、协议模型和事件流由独立的 [limivia Python SDK](https://pypi.org/project/limivia/) 提供，依赖方向为 `server → SDK → USB/BLE`。
 
 首版支持 **合宙 CORE ESP32-C3 简约版（无串口芯片，外置 4MB Flash）**。网页通过同源 WebSocket 访问 **Python 后端管理的 BLE / USB 设备**，默认使用蓝牙。FastAPI 统一托管前端与设备通道，Poetry/Typer CLI 提供服务启动与环境检查。固件、构建、烧录及实机验证独立在 [limivia-esp32 仓库](../limivia-esp32/README.md)。
 
@@ -19,28 +19,27 @@ LIMIVIA 受到 [wave-del 同学的 esp32-audio-web 项目](https://github.com/wa
 | GPIO | 输入、输出、上拉、下拉，真实电平读回与引脚占用 |
 | PWM / LEDC | 最多 4 路独立频率，5–40000Hz，占空比、呼吸周期、停止 |
 | ADC1 | GPIO0/1/3/4 单次或周期采集，原始值、校准电压、曲线与 CSV |
-| 本地定时 | 最多 4 个周期闪烁或单次脉冲任务，断线继续，重启清空 |
+| 板载定时 | 最多 4 个周期闪烁或单次脉冲任务，断线继续，重启清空 |
 
 首版不包含 SPI、I²C、I²S、Wi-Fi、复杂状态机或脚本 IDE。AI 通过统一命令与能力描述留出扩展点，目前不调用模型。
 
 工作台界面同步自 [Figma 当前 UI 快照（2026-10-21）](https://www.figma.com/design/9WbAWG0bfGyDgJPDugJMTh/?node-id=33-2887)，包含五类实验、连接、引脚资源、帮助和命令日志。桌面采用侧栏，窄屏采用横向导航；实际读数、资源占用和任务状态由设备返回。图标与板卡功能示意存于本地，来源见 [资源说明](src/web/src/assets/figma/README.md)。
 
+板载 LED 页于 2026-10-22 同步至 [最新白垣设计（1440×900）](https://www.figma.com/design/AzGxH7vvqqpSfxBXUBRYbf/limivia?node-id=33-2888)：控制与状态区占满主任务宽度，设备确认与输出示意并列，下方对齐模式说明和引脚资源。等待确认、未连接、状态失效与设备拒绝仍由真实会话状态驱动；窄屏按操作、状态、说明顺序排列。
+
 ## 安装与启动
 
-开发依赖：Python 3.12、Poetry、Node.js（建议本项目已验证的 24.x）和 pnpm。运行工作台无需 ESP-IDF 或固件仓库。SDK 仍在开发阶段，暂不在本项目依赖中声明；运行前必须通过 pip 将 SDK 的 WHL 手动安装到本项目的 Poetry 虚拟环境，Bleak 和 pySerial 随 SDK 安装。
-
-先在 SDK 仓库执行 `poetry build -f wheel`，再回到本仓库安装。下面以 SDK 位于 `../limivia`、版本为 `0.1.0` 为例；可替换成实际 WHL 路径，无需固定同级目录。
+开发依赖：Python 3.12、Poetry、Node.js（建议本项目已验证的 24.x）和 pnpm。Python 依赖由 Poetry 从清华源统一安装，包含已发布的 `limivia 0.1.0` SDK，以及 SDK 所需的 Bleak 和 pySerial。运行工作台无需检出 SDK、ESP-IDF 或固件仓库。
 
 ```bash
 poetry env use python3.12
 poetry install
-poetry run python -m pip install ../limivia/dist/limivia-0.1.0-py3-none-any.whl
 pnpm --dir src/web install --frozen-lockfile
 pnpm --dir src/web run build
 poetry run limivia-server serve
 ```
 
-SDK 同版本重新构建后，先执行 `poetry run python -m pip install --force-reinstall --no-deps ../limivia/dist/limivia-0.1.0-py3-none-any.whl` 替换旧包，再执行上面的普通安装命令补齐依赖。执行 `poetry sync` 会清理手动安装的 SDK 及其独有依赖，之后需要重新安装 WHL。
+SDK 版本和包源由 `pyproject.toml` 声明，解析结果记录在 `poetry.lock`。`poetry install` 和 `poetry sync` 均可完整恢复后端依赖；升级 SDK 时通过 Poetry 更新声明与锁文件。
 
 打开 **http://127.0.0.1:8000**。标准运行只有一个后端服务，托管 `src/web/dist`；Vite dev 仅用于需要 HMR 的前端开发。前端未构建时服务会给出明确错误。
 
@@ -113,6 +112,8 @@ pnpm --dir src/web exec playwright install chromium
 pnpm --dir src/web run test:e2e
 ```
 
+端到端测试在 `127.0.0.1:18000` 独立启动当前后端，测试结束后自动关闭；该端口需空闲。
+
 实机验证工具与硬件测试记录已迁至固件仓库，使用方式见其 README。
 
 本次真实执行结果与环境限制见 [验证记录](docs/verification.md)。浏览器 E2E 的设备控制测试使用隔离的后端响应模拟；后端适配器测试使用可控的模拟传输，模拟代码仅在测试目录中，不进入应用构建。
@@ -123,7 +124,6 @@ pnpm --dir src/web run test:e2e
 src/limivia_server/  FastAPI 托管、SDK 事件与网页协议适配、工作台 Typer CLI
 src/web/            React 工作台、WebSocket 客户端、前端测试
 .agents/skills/     仅本工程使用的板卡与芯片知识
-../limivia/         独立 Python SDK：USB/BLE、命令、强类型事件
 ```
 
 Server 使用 `AsyncLimivia`，每个浏览器连接对应一个 SDK 会话。SDK 自动握手、排队命令、关联请求并产生类型化事件；适配层保留网页已有 HTTP/WebSocket 格式，并独立映射浏览器请求 ID。

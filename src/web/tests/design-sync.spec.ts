@@ -12,7 +12,7 @@ for (const width of [320, 768, 1280]) {
     const device = await installDevice(page, 'ble')
     await page.goto('/')
     await page.screenshot({ path: `../../artifacts/figma-sync/led-${width}.png`, fullPage: true })
-    for (const image of await page.locator('nav img').all()) {
+    for (const image of await page.locator('.nav-item img:visible').all()) {
       await expect(image).toHaveJSProperty('complete', true)
       const geometry = await image.evaluate((element) => {
         const img = element as HTMLImageElement
@@ -37,7 +37,7 @@ for (const width of [320, 768, 1280]) {
       ['gpio', '数字引脚'],
       ['pwm', 'PWM 调制'],
       ['adc', '模拟采集'],
-      ['timer', '本地定时'],
+      ['timer', '板载定时'],
     ]) {
       await page.getByRole('button', { name, exact: true }).click()
       await page.getByLabel('目标引脚').selectOption(id === 'gpio' ? '3' : id === 'pwm' ? '4' : '0')

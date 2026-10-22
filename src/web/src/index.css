@@ -208,7 +208,6 @@ code {
   font-size: 21px;
   line-height: 32px;
   color: var(--accent-strong);
-  width: 33px;
 }
 .transport-label {
   color: var(--text-secondary);
@@ -307,6 +306,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  align-items: center;
 }
 main:focus {
   outline: none;
@@ -317,6 +317,8 @@ main:focus {
   gap: 16px;
   min-height: 32px;
   flex: 0 0 auto;
+  width: 100%;
+  max-width: 1440px;
 }
 .title-group {
   display: flex;
@@ -333,7 +335,9 @@ main:focus {
 }
 .page-heading > button {
   flex-shrink: 0;
-  padding-inline: 0;
+  width: 96px;
+  min-height: 28px;
+  padding: 3px 8px;
 }
 .demo-label {
   font-size: 12px;
@@ -345,6 +349,8 @@ main:focus {
   min-height: 0;
   overflow-y: auto;
   overflow-x: clip;
+  width: 100%;
+  max-width: 1440px;
 }
 .diagnostic-bar {
   flex: 0 0 auto;
@@ -352,7 +358,9 @@ main:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  width: 100%;
+  max-width: 1440px;
 }
 .diagnostic-bar > button {
   padding: 0;
@@ -429,33 +437,61 @@ main:focus {
   margin-bottom: 16px;
 }
 .led-workspace {
-  width: min(960px, 100%);
+  width: 100%;
   border-top: 1px solid var(--border);
 }
 .led-primary {
   display: flex;
   align-items: center;
   gap: 32px;
-  min-height: 212px;
-  padding: 32px 24px 36px;
+  min-height: 216px;
+  padding: 24px;
+  background: var(--surface);
 }
 .led-controls {
-  width: 360px;
-  flex: 0 0 360px;
+  min-width: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  height: 144px;
+}
+.led-controls > * {
+  flex-shrink: 0;
+}
+.led-controls .mode-switch {
+  width: 216px;
+  height: 32px;
   gap: 8px;
+  border-radius: var(--av-radius-sm);
+  background: var(--surface-subtle);
 }
 .led-controls .mode-switch button {
+  width: 104px;
+  min-width: 0;
+  padding-inline: 8px;
+  font-weight: 500;
   text-align: center;
+}
+.led-controls .button-row > button {
+  width: 104px;
+  flex: 0 0 104px;
+  padding-inline: 8px;
+}
+.led-controls .operation-feedback {
+  min-height: 40px;
+  font-size: 13px;
+  line-height: 20px;
 }
 .led-confirmation {
   display: flex;
   align-items: center;
-  border-left: 1px solid var(--border);
-  padding-left: 32px;
-  min-height: 128px;
-  gap: 8px;
+  flex: 0 0 384px;
+  min-width: 0;
+  min-height: 168px;
+  padding: 16px 16px 16px 24px;
+  gap: 16px;
+  background: var(--bg-secondary);
 }
 .led-indicator {
   flex: 0 0 96px;
@@ -528,24 +564,29 @@ main:focus {
   height: 16px;
 }
 .device-confirmation {
-  width: 224px;
-  padding: 16px 8px;
+  flex: 1;
+  min-width: 0;
+  height: 120px;
+  padding-block: 8px;
+}
+.device-confirmation .field-caption {
+  display: block;
 }
 .device-confirmation h2 {
-  font-size: 22px;
-  line-height: 30px;
+  font-size: 26px;
+  line-height: 36px;
   margin: 6px 0;
 }
 .device-confirmation p {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
 }
 .led-secondary {
   border-top: 1px solid var(--border);
   display: grid;
-  grid-template-columns: 360px minmax(0, 1fr);
-  gap: 40px;
-  padding: 20px 24px;
+  grid-template-columns: minmax(0, 1fr) 384px;
+  gap: 32px;
+  padding: 24px;
 }
 .led-secondary h3 {
   margin-bottom: 8px;
@@ -554,7 +595,10 @@ main:focus {
   color: var(--text-secondary);
 }
 .led-secondary button {
-  margin-top: 4px;
+  width: 96px;
+  min-height: 28px;
+  margin-top: 8px;
+  padding-block: 3px;
 }
 .form-row {
   display: flex;
@@ -1154,23 +1198,6 @@ thead {
   .pin-capability {
     min-width: 180px;
   }
-  .led-primary {
-    gap: 24px;
-  }
-  .led-controls {
-    width: 320px;
-    flex-basis: 320px;
-  }
-  .led-confirmation {
-    padding-left: 16px;
-  }
-  .device-confirmation {
-    width: auto;
-  }
-  .led-secondary {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 24px;
-  }
   .task-header,
   .task-row {
     grid-template-columns: 128px minmax(0, 1fr) 112px 88px;
@@ -1192,12 +1219,13 @@ thead {
     gap: 24px;
   }
   .led-controls {
-    flex-basis: auto;
+    flex: none;
     width: 100%;
+    height: auto;
   }
   .led-confirmation {
-    border-left: 0;
-    padding: 0;
+    flex: none;
+    width: 100%;
   }
   .led-secondary {
     grid-template-columns: 1fr;
@@ -1307,7 +1335,7 @@ thead {
     overflow: visible;
   }
   .led-primary {
-    padding: 24px 0;
+    padding: 24px 16px;
   }
   .led-secondary {
     padding: 20px 0;

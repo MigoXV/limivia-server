@@ -16,7 +16,7 @@ const sections = [
   { id: 'gpio', icon: gpioIcon, title: '数字引脚', note: '引脚能力、模式与电平分开确认' },
   { id: 'pwm', icon: pwmIcon, title: 'PWM 调制', note: '编辑参数后显式应用至设备' },
   { id: 'adc', icon: adcIcon, title: '模拟采集', note: 'ADC1 · 观察输入信号' },
-  { id: 'timer', icon: timerIcon, title: '本地定时', note: '任务在芯片端执行' },
+  { id: 'timer', icon: timerIcon, title: '板载定时', note: '任务在芯片端执行' },
 ] as const
 type Section = (typeof sections)[number]['id']
 type Overlay = 'resources' | 'wiring' | 'logs' | 'help' | 'connection' | 'feedback' | null
@@ -314,7 +314,7 @@ export default function App() {
               <p>{connectionPage ? '通过后端电脑访问 ESP32-C3' : active.note}</p>
             </div>
             {!connectionPage && section === 'led' && (
-              <span className="demo-label">示意 · 非实测</span>
+              <span className="demo-label">演示 · 非实测</span>
             )}
             <button className="text-button" onClick={() => setOverlay('help')}>
               {connectionPage ? '连接帮助' : '当前实验帮助'}
@@ -493,7 +493,11 @@ export default function App() {
                         {operationFeedback(
                           ledBreathing
                             ? 'GPIO 13 由 PWM 呼吸占用。停止并确认后可切换控制模式。'
-                            : '设备状态已同步。',
+                            : ledOn
+                              ? '设备已确认点亮。'
+                              : mode === 'idle' || mode === 'output'
+                                ? '设备已确认熄灭。'
+                                : '设备状态已同步。',
                         )}
                       </div>
                       <div className="led-confirmation">
@@ -1113,15 +1117,10 @@ export default function App() {
           <footer className="diagnostic-bar">
             <button className="text-button" onClick={() => setOverlay('logs')}>
               <span aria-hidden="true">›</span> 命令与事件
-              {device.logs.length > 0 ? ` · ${device.logs.length}` : ''}
             </button>
-            <span>
-              {!ready
-                ? '参数可预设 · 执行需连接设备'
-                : stale
-                  ? '状态已过期 · 请先读取设备'
-                  : '设备确认状态 · 非物理测量'}
-            </span>
+            {(!ready || stale) && (
+              <span>{!ready ? '参数可预设 · 执行需连接设备' : '状态已过期 · 请先读取设备'}</span>
+            )}
           </footer>
         </main>
       </div>

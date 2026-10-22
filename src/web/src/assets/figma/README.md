@@ -1,6 +1,6 @@
 # Figma 静态资源
 
-来源：[LIMIVIA 主设计 · 完整交互 · 白垣](https://www.figma.com/design/9WbAWG0bfGyDgJPDugJMTh?node-id=33-2887)。2026-10-22 通过 Figma 设计上下文下载，保留原始 SVG 与固有尺寸；应用从本地导入，不使用临时下载链接。
+导航图标已按 [LIMIVIA · LED 白垣设计](https://www.figma.com/design/AzGxH7vvqqpSfxBXUBRYbf/limivia?node-id=33-2888) 于 2026-10-22 重新下载核对，与现有六个 SVG 逐字节一致，继续复用本地文件。板卡功能示意沿用 [原完整交互设计](https://www.figma.com/design/9WbAWG0bfGyDgJPDugJMTh?node-id=33-2887)。全部资源保留原始 SVG 与固有尺寸；应用从本地导入，不使用临时下载链接。
 
 | 文件 | 设计节点 | 固有尺寸 | 用途 |
 | --- | --- | --- | --- |
@@ -8,7 +8,7 @@
 | gpio.svg | 111:1875 | 16 × 16 | 数字引脚导航 |
 | pwm.svg | 111:1878 | 16 × 16 | PWM 导航 |
 | adc.svg | 111:1881 | 16 × 16 | 模拟采集导航 |
-| timer.svg | 111:1885 | 16 × 16 | 本地定时导航 |
+| timer.svg | 111:1885 | 16 × 16 | 板载定时导航 |
 | board.svg | 111:1890 | 16 × 16 | 板卡与引脚入口 |
 | board-preview.svg | 77:8250 | 250 × 313 | 引脚与资源弹窗中的功能示意 |
 
