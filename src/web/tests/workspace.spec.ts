@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test'
+import { openConnection, openResources } from './helpers'
 
 for (const width of [320, 768, 1280]) {
   test(`disconnected workspace at ${width}px is honest and fits viewport`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 })
     await page.goto('/')
-    await expect(page.getByText('等待连接', { exact: true })).toBeVisible()
+    await expect(page.locator('.connection-status')).toHaveText('未连接')
     await expect(page.getByRole('button', { name: '点亮 LED', exact: true })).toBeDisabled()
     for (const name of ['数字引脚', 'PWM 调制', '模拟采集', '本地定时', '板载 LED']) {
       await page
@@ -29,8 +30,13 @@ test('backend discovery failure and empty results are recoverable', async ({ pag
     else await route.fulfill({ json: { kind: 'ble', devices: [] } })
   })
   await page.goto('/')
-  await expect(page.getByLabel('连接方式')).toHaveValue('ble')
-  await expect(page.getByRole('button', { name: '连接设备' })).toBeDisabled()
+  await openConnection(page)
+  await expect(
+    page
+      .getByRole('group', { name: '连接方式', exact: true })
+      .getByRole('button', { name: 'BLE 蓝牙' }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('button', { name: '连接所选设备' })).toBeDisabled()
   await page.getByRole('button', { name: '搜索设备' }).click()
   await expect(page.getByRole('alert')).toContainText('后端蓝牙不可用')
   await expect(page.getByRole('button', { name: '搜索设备' })).toBeEnabled()
@@ -51,15 +57,21 @@ test('backend Bluetooth works without browser hardware APIs and supports reconne
   await page.goto('/')
   await page.keyboard.press('Tab')
   await expect(page.getByRole('link', { name: '跳至工作区' })).toBeFocused()
-  await expect(page.getByLabel('连接方式')).toHaveValue('ble')
+  await openConnection(page)
+  await expect(
+    page
+      .getByRole('group', { name: '连接方式', exact: true })
+      .getByRole('button', { name: 'BLE 蓝牙' }),
+  ).toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('button', { name: '搜索设备' }).click()
-  await page.getByRole('button', { name: '连接设备' }).click()
-  await expect(page.getByText('设备已就绪', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '连接所选设备' }).click()
+  await expect(page.locator('.connection-status')).toHaveText('已连接')
   device.disconnect()
-  await expect(page.getByText('连接已丢失', { exact: true })).toBeVisible()
+  await expect(page.locator('.connection-status')).toHaveText('连接已丢失')
   await expect(page.getByRole('button', { name: '点亮 LED', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: '连接设备' }).click()
-  await expect(page.getByText('设备已就绪', { exact: true })).toBeVisible()
+  await openConnection(page)
+  await page.getByRole('button', { name: '连接所选设备' }).click()
+  await expect(page.locator('.connection-status')).toHaveText('已连接')
 })
 
 test('multiple backend devices require selection and switching transport clears it', async ({
@@ -77,14 +89,20 @@ test('multiple backend devices require selection and switching transport clears 
     })
   })
   await page.goto('/')
+  await openConnection(page)
   await page.getByRole('button', { name: '搜索设备' }).click()
   await expect(page.getByLabel('后端设备')).toBeVisible()
-  await expect(page.getByRole('button', { name: '连接设备' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: '连接所选设备' })).toBeDisabled()
   await page.getByLabel('后端设备').selectOption('two')
-  await expect(page.getByRole('button', { name: '连接设备' })).toBeEnabled()
-  await page.getByLabel('连接方式').selectOption('usb')
+  await expect(page.getByRole('button', { name: '连接所选设备' })).toBeEnabled()
+  await page
+    .getByRole('group', { name: '连接方式', exact: true })
+    .getByRole('button', { name: 'BLE 蓝牙' })
+    .locator('..')
+    .getByRole('button', { name: 'USB', exact: true })
+    .click()
   await expect(page.getByLabel('后端设备')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: '连接设备' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: '连接所选设备' })).toBeDisabled()
 })
 
 test('workbench accessibility and 200% text zoom', async ({ page }) => {
@@ -112,7 +130,8 @@ test('workbench accessibility and 200% text zoom', async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   )
-  await expect(page.getByRole('button', { name: '停止全部输出' })).toBeVisible()
+  const resources = await openResources(page)
+  await expect(resources.getByRole('button', { name: '停止全部输出…' })).toBeVisible()
 })
 
 test('backend connection errors allow retry', async ({ page }) => {
@@ -125,16 +144,18 @@ test('backend connection errors allow retry', async ({ page }) => {
     ws.close()
   })
   await page.goto('/')
+  await openConnection(page)
   await page.getByRole('button', { name: '搜索设备' }).click()
-  await page.getByRole('button', { name: '连接设备' }).click()
+  await page.getByRole('button', { name: '连接所选设备' }).click()
   await expect(page.getByRole('alert')).toContainText('其他页面使用')
-  await expect(page.getByRole('button', { name: '连接设备' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: '连接所选设备' })).toBeEnabled()
 })
 
 test('device selector and connected controls fit narrow viewports', async ({ page }) => {
   const { installDevice } = await import('./simulated-device')
   await installDevice(page, 'ble')
   await page.goto('/')
+  await openConnection(page)
   await page.getByRole('button', { name: '搜索设备' }).click()
   for (const width of [320, 768, 1280]) {
     await page.setViewportSize({ width, height: 1000 })
@@ -144,8 +165,8 @@ test('device selector and connected controls fit narrow viewports', async ({ pag
     await page.screenshot({ path: `../../artifacts/device-selection-${width}.png`, fullPage: true })
   }
   await page.setViewportSize({ width: 320, height: 1000 })
-  await page.getByRole('button', { name: '连接设备' }).click()
-  await expect(page.getByText('设备已就绪', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '连接所选设备' }).click()
+  await expect(page.locator('.connection-status')).toHaveText('已连接')
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   )

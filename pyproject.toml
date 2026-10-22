@@ -7,16 +7,17 @@ readme = "README.md"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE"]
 requires-python = ">=3.12,<3.13"
-dependencies = ["typer>=0.15,<1", "fastapi[standard]>=0.156.8,<1", "limivia>=0.1.0,<0.2.0", "anyio>=4,<5"]
+dependencies = [
+    "typer>=0.15,<1", 
+    "fastapi[standard]>=0.156.8,<1", 
+    "anyio>=4,<5"
+]
 
 [project.scripts]
 limivia-server = "limivia_server.commands.app:app"
 
 [tool.poetry]
 packages = [{include = "limivia_server", from = "src"}]
-
-[tool.poetry.dependencies]
-limivia = {path = "../limivia", develop = true}
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8,<9"

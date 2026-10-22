@@ -185,6 +185,17 @@ export function friendlyError(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
+// A firmware rejection is different from a lost acknowledgement: only the
+// latter leaves the outcome unknown and must block further output commands.
+export class DeviceCommandError extends Error {
+  readonly code: string
+  constructor(code: string, message: string) {
+    super(message)
+    this.name = 'DeviceCommandError'
+    this.code = code
+  }
+}
+
 export class DeviceClient {
   private transport?: Transport
   private pending?: {
@@ -255,7 +266,10 @@ export class DeviceClient {
     if (message.ok === true) this.pending.resolve(message.result)
     else
       this.pending.reject(
-        new Error(errors[message.error?.code ?? ''] ?? message.error?.message ?? '设备拒绝操作'),
+        new DeviceCommandError(
+          message.error?.code ?? 'unknown',
+          errors[message.error?.code ?? ''] ?? message.error?.message ?? '设备拒绝操作',
+        ),
       )
     this.pending = undefined
   }

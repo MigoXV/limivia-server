@@ -1,8 +1,19 @@
 # 工作台验证记录
 
+## 2026-10-22：Figma 工作台同步
+
+- 同步 [Figma 主设计页](https://www.figma.com/design/9WbAWG0bfGyDgJPDugJMTh/?node-id=33-2887) 的五类实验、连接、引脚资源、帮助与命令日志。复用白垣 Token，本地保存导航 SVG 与板卡功能示意；既有 32 物理引脚映射未改动。
+- `poetry run pytest`：22 项通过；`poetry run ruff check src/limivia_server tests` 通过。
+- 前端 lint、8 项 Vitest、生产构建与 26 项 Playwright E2E 通过；最终在减少动态效果模式下复跑 4 项界面同步用例通过，重拍三种尺寸截图。
+- 覆盖 USB/BLE 模拟握手、输出确认、重复提交保护、应答丢失与手动状态恢复、固件拒绝与未知结果区分、GPIO 输入/输出双向草稿切换与延迟确认、PWM 草稿与已确认值、占用冲突、ADC 引脚隔离/CSV/重连清空、停止确认及断线任务状态。GPIO 草稿不提前改变设备读数语义；无效 ADC 间隔草稿不会阻断停止采样。
+- 320、768、1280px 检查五类实验及弹窗布局、全页溢出和 axe WCAG A/AA；保留键盘操作、200% 缩放、实物接线图逐层关闭与焦点恢复检查。导航图标为本地 16×16 SVG，板卡功能示意为 250×313，测试同时检查资源加载和实际尺寸。
+- 独立完工复核发现的 GPIO 草稿与已确认读数语义问题已修复，并由回归测试覆盖；复核结论为可交付。
+- 对照截图位于本机 `artifacts/figma-reference/`，应用截图位于 `artifacts/figma-sync/`，均为 Git 忽略产物。截图中的设备数据由测试模拟，生产构建不包含模拟设备。
+- 本次未执行真实 USB/BLE 实机验证，未修改协议、SDK、硬件映射或固件，未烧录开发板。
+
 ## 2026-10-22：Server / SDK 拆分
 
-现有仓库改名为 limivia-server，Python 包改为 limivia_server；新建独立 limivia SDK，server 使用 editable path dependency 接入。两项目均使用独立 Python 3.12.3 .venv，旧项目 Python 3.10 缓存环境已移除。
+现有仓库改名为 limivia-server，Python 包改为 limivia_server；新建独立 limivia SDK，拆分时 server 使用 editable path dependency 接入。两项目均使用独立 Python 3.12.3 .venv，旧项目 Python 3.10 缓存环境已移除。以下为拆分当时的验证结果；随后开发依赖改为手动安装 SDK WHL，当前安装步骤见 [README](../README.md#安装与启动)。
 
 - SDK：59 项 Python 测试、Ruff、mypy 类型检查、CLI 和示例帮助验证通过。
 - Server：22 项 Python 测试、Ruff、doctor 验证通过。

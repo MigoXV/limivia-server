@@ -39,6 +39,15 @@ export async function installDevice(page: Page, kind: 'usb' | 'ble') {
   let receive: (text: string) => void = () => {}
   let buffer = ''
   const commands: string[] = []
+  let delayOp = ''
+  let rejectOp = ''
+  let rejectCode = 'pin_busy'
+  let dropOp = ''
+  let delayed: (() => void) | undefined
+  let timerId = 0
+  function send(text: string) {
+    for (let n = 0; n < text.length; n += 17) receive(text.slice(n, n + 17))
+  }
   const decoder = new TextDecoder()
   function write(bytes: Uint8Array) {
     buffer += decoder.decode(bytes, { stream: true })
@@ -49,6 +58,13 @@ export async function installDevice(page: Page, kind: 'usb' | 'ble') {
       buffer = buffer.slice(boundary + 1)
       const { id, op, params } = JSON.parse(line)
       commands.push(op)
+      if (op === rejectOp) {
+        rejectOp = ''
+        queueMicrotask(() =>
+          send(JSON.stringify({ v: 1, id, ok: false, error: { code: rejectCode } }) + '\n'),
+        )
+        continue
+      }
       const target = pins.find((pin) => pin.pin === params.pin)
       let result: unknown = state
       state.revision++
@@ -79,11 +95,14 @@ export async function installDevice(page: Page, kind: 'usb' | 'ble') {
       if (op === 'pwm.set' && target) {
         target.mode = 'pwm'
         target.level = null
-        state.pwm = [{ ...params, resolution: 14 }]
+        state.pwm = [
+          ...state.pwm.filter((p) => p.pin !== params.pin),
+          { ...params, resolution: 14 },
+        ]
       }
       if (op === 'timer.start' && target) {
         target.mode = 'timer'
-        state.timers = [{ ...params, id: 0, elapsed_ms: 0 }]
+        state.timers = [...state.timers, { ...params, id: ++timerId, elapsed_ms: 0 }]
       }
       if (op === 'adc.read' || op === 'adc.start') {
         if (target) target.mode = 'adc'
@@ -94,7 +113,8 @@ export async function installDevice(page: Page, kind: 'usb' | 'ble') {
           calibrated: true,
           uptime_ms: state.uptime_ms,
         }
-        if (op === 'adc.start') state.streams = [params]
+        if (op === 'adc.start')
+          state.streams = [...state.streams.filter((p) => p.pin !== params.pin), params]
       }
       if (['pin.release', 'pwm.stop', 'timer.stop', 'adc.stop', 'outputs.stop'].includes(op)) {
         const all = op === 'outputs.stop'
@@ -109,9 +129,18 @@ export async function installDevice(page: Page, kind: 'usb' | 'ble') {
         state.streams = state.streams.filter((p) => !all && p.pin !== params.pin)
       }
       const response = JSON.stringify({ v: 1, id, ok: true, result }) + '\n'
+      if (op === dropOp) {
+        dropOp = ''
+        continue
+      }
+      if (op === delayOp) {
+        delayOp = ''
+        delayed = () => send(response)
+        continue
+      }
       // Responses deliberately span multiple packets.
       queueMicrotask(() => {
-        for (let n = 0; n < response.length; n += 17) receive(response.slice(n, n + 17))
+        send(response)
       })
     }
   }
@@ -123,6 +152,35 @@ export async function installDevice(page: Page, kind: 'usb' | 'ble') {
   })
   return {
     commands,
+    delayNext(op: string) {
+      delayOp = op
+    },
+    acknowledge() {
+      delayed?.()
+      delayed = undefined
+    },
+    dropNext(op: string) {
+      dropOp = op
+    },
+    rejectNext(op: string, code = 'pin_busy') {
+      rejectOp = op
+      rejectCode = code
+    },
+    sample(pin: number, raw: number, millivolts: number | null = null) {
+      receive(
+        JSON.stringify({
+          v: 1,
+          event: 'adc',
+          data: {
+            pin,
+            raw,
+            millivolts,
+            calibrated: millivolts !== null,
+            uptime_ms: ++state.uptime_ms,
+          },
+        }) + '\n',
+      )
+    },
     disconnect() {
       socket?.send(JSON.stringify({ type: 'error', message: '后端设备连接已断开，请重新连接。' }))
       socket?.close()

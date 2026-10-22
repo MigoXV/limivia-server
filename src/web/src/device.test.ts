@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { DeviceClient, LineReader, type Transport } from './device'
+import { DeviceClient, DeviceCommandError, LineReader, type Transport } from './device'
 
 class MockTransport implements Transport {
   writes: string[] = []
@@ -92,10 +92,14 @@ describe('device lifecycle', () => {
     await client.connect('usb', transport)
     transport.respond = false
     const request = client.request('gpio.set', { pin: 18 })
-    const failure = expect(request).rejects.toThrow('保留')
+    const failure = expect(request).rejects.toMatchObject({
+      name: 'DeviceCommandError',
+      code: 'protected_pin',
+    })
     await Promise.resolve()
     transport.onData('{"v":1,"id":2,"ok":false,"error":{"code":"protected_pin"}}\n')
     await failure
+    expect(new DeviceCommandError('protected_pin', '保留')).toBeInstanceOf(Error)
     transport.respond = true
     expect(await client.request('state')).toEqual({ executed: true })
     await client.disconnect()

@@ -1,16 +1,18 @@
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { installDevice } from './simulated-device'
+import { connectDevice, openWiring } from './helpers'
 
 for (const width of [320, 768, 1280]) {
   test(`实物接线图在 ${width}px 可查看、翻面及键盘关闭`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 })
     await page.goto('/')
-    const board = page.locator('.board-wrap > svg')
+    await openWiring(page)
+    const board = page.locator('.wiring-dialog .board-wrap > svg')
     await expect(board.locator('[data-pin-id]')).toHaveCount(32)
     await expect(board.locator('.selected-pin')).toHaveAttribute('data-pin-id', 'L10')
     await page.getByRole('button', { name: '放大接线图' }).click()
-    const dialog = page.getByRole('dialog')
+    const dialog = page.locator('.board-dialog')
     await expect(dialog).toBeVisible()
     await expect(dialog.locator('[data-pin-id]')).toHaveCount(32)
     await expect(dialog.locator('[data-pin-id="L10"]')).toHaveAttribute('data-side', 'left')
@@ -39,12 +41,11 @@ for (const width of [320, 768, 1280]) {
 test('查看引脚不发送设备命令且五类颜色正确', async ({ page }) => {
   const device = await installDevice(page, 'ble')
   await page.goto('/')
-  await page.getByRole('button', { name: '搜索设备' }).click()
-  await page.getByRole('button', { name: '连接设备' }).click()
-  await expect(page.getByText('设备已就绪', { exact: true })).toBeVisible()
+  await connectDevice(page)
+  await openWiring(page)
   expect(device.commands.length).toBeGreaterThan(0)
   const before = [...device.commands]
-  const board = page.locator('.board-wrap > svg')
+  const board = page.locator('.wiring-dialog .board-wrap > svg')
   for (const [id, color] of [
     ['L16', 'rgb(220, 38, 38)'],
     ['L1', 'rgb(17, 17, 17)'],
