@@ -4,8 +4,8 @@ import pytest
 from fastapi.testclient import TestClient
 from typer.testing import CliRunner
 
-from limivia.commands.app import app as cli
-from limivia.web.app import create_app
+from limivia_server.commands.app import app as cli
+from limivia_server.web.app import create_app
 
 
 @pytest.fixture()

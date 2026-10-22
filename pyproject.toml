@@ -1,19 +1,22 @@
 [project]
-name = "limivia"
+name = "limivia-server"
 version = "0.1.0"
 description = "LIMIVIA 莉米维娅：连接数字世界与物理世界的硬件实验工作台"
 authors = [{name = "migo", email = "1695587905@qq.com"}]
 readme = "README.md"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE"]
-requires-python = ">=3.10,<3.13"
-dependencies = ["typer>=0.15,<1", "fastapi[standard]>=0.156.8,<1", "bleak (>=1,<4)", "pyserial (>=3.5,<4)", "anyio (>=4,<5)"]
+requires-python = ">=3.12,<3.13"
+dependencies = ["typer>=0.15,<1", "fastapi[standard]>=0.156.8,<1", "limivia>=0.1.0,<0.2.0", "anyio>=4,<5"]
+
+[project.scripts]
+limivia-server = "limivia_server.commands.app:app"
 
 [tool.poetry]
-packages = [{include = "limivia", from = "src"}]
+packages = [{include = "limivia_server", from = "src"}]
 
-[tool.poetry.scripts]
-limivia = "limivia.commands.app:app"
+[tool.poetry.dependencies]
+limivia = {path = "../limivia", develop = true}
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8,<9"
@@ -21,7 +24,7 @@ httpx = ">=0.28,<1"
 ruff = ">=0.11,<1"
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py312"
 line-length = 100
 
 [[tool.poetry.source]]

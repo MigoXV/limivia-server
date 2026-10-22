@@ -5,7 +5,7 @@ description: 在 LIMIVIA 工作台中接入合宙 CORE ESP32-C3 简约版（无�
 
 # LIMIVIA ESP32-C3 接入
 
-本技能仅服务含 `src/limivia` 与 `src/web` 的 LIMIVIA 工作台仓库，不安装到全局。固件已独立至 `limivia-esp32`（本机为相邻目录），工作台不依赖其检出位置。
+本技能仅服务含 `src/limivia_server` 与 `src/web` 的 LIMIVIA 工作台仓库，不安装到全局。固件已独立至 `limivia-esp32`（本机为相邻目录），工作台不依赖其检出位置。
 
 ## 按任务读取
 
@@ -16,7 +16,7 @@ description: 在 LIMIVIA 工作台中接入合宙 CORE ESP32-C3 简约版（无�
 
 ## 工程边界
 
-- Python 后端通过 Bleak / pySerial 扫描并连接 BLE / USB 设备，浏览器通过同源 WebSocket 转发协议帧；默认蓝牙。设备属于后端所在电脑，浏览器不再直接请求串口或蓝牙权限。
+- Python 后端通过独立 limivia SDK 扫描并连接 BLE / USB 设备；Bleak / pySerial 实现在 SDK 内，浏览器通过同源 WebSocket 转发协议帧；默认蓝牙。设备属于后端所在电脑，浏览器不再直接请求串口或蓝牙权限。
 - 本板无 USB-UART 桥，GPIO18/19 保留给原生 USB Serial/JTAG。仅确认过的外置 4MB Flash 板使用 D4/GPIO12 和 D5/GPIO13 高电平 LED 映射。
 - 固件是引脚与资源校验的最终边界；保护 USB、Flash、绑带脚、GPIO11 和状态 LED，不写 eFuse。
 - PWM 与本地任务在断线后继续，重启清空；重连查询状态，不回写浏览器旧值。握手必须检查协议版本。

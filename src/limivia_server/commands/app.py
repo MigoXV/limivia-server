@@ -5,7 +5,7 @@ import shutil
 
 import typer
 
-from limivia.paths import WEB_DIST
+from limivia_server.paths import WEB_DIST
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ def serve(
         raise typer.Exit(1)
     import uvicorn
 
-    uvicorn.run("limivia.web.app:app", host=host, port=port)
+    uvicorn.run("limivia_server.web.app:app", host=host, port=port)
 
 
 @app.command()

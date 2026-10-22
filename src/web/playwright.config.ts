@@ -4,7 +4,7 @@ export default defineConfig({
   outputDir: '../../artifacts/playwright',
   use: { baseURL: 'http://127.0.0.1:8000', headless: true },
   webServer: {
-    command: 'poetry run limivia serve',
+    command: 'poetry run limivia-server serve',
     cwd: '../..',
     url: 'http://127.0.0.1:8000/api/health',
     reuseExistingServer: true,

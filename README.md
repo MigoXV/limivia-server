@@ -1,6 +1,8 @@
-# LIMIVIA（莉米维娅）
+# LIMIVIA Server（莉米维娅工作台）
 
 LIMIVIA 是一套以软件为核心、连接数字世界与物理世界的通用硬件操作与开发框架。它通过软件抽象和可视化交互，让具备软件或 AI 背景、缺乏硬件经验的人逐步理解并操纵真实设备。
+
+本仓库的发布名和启动命令为 **limivia-server**，Python 包名为 **limivia_server**。硬件控制、协议模型和事件流由独立的 [limivia Python SDK](../limivia/README.md) 提供，依赖方向为 `server → SDK → USB/BLE`。
 
 首版支持 **合宙 CORE ESP32-C3 简约版（无串口芯片，外置 4MB Flash）**。网页通过同源 WebSocket 访问 **Python 后端管理的 BLE / USB 设备**，默认使用蓝牙。FastAPI 统一托管前端与设备通道，Poetry/Typer CLI 提供服务启动与环境检查。固件、构建、烧录及实机验证独立在 [limivia-esp32 仓库](../limivia-esp32/README.md)。
 
@@ -23,24 +25,24 @@ LIMIVIA 受到 [wave-del 同学的 esp32-audio-web 项目](https://github.com/wa
 
 ## 安装与启动
 
-开发依赖：Python 3.10、Poetry、Node.js（建议本项目已验证的 24.x）和 pnpm。运行工作台无需 ESP-IDF 或固件仓库；`poetry install` 会安装 Bleak 蓝牙与 pySerial 串口依赖。
+开发依赖：Python 3.12、Poetry、Node.js（建议本项目已验证的 24.x）和 pnpm。运行工作台无需 ESP-IDF 或固件仓库。当前开发配置通过 `../limivia` 的 editable path dependency 安装 SDK，因此 SDK 与 server 需要放在同级目录；Bleak 和 pySerial 由 SDK 声明。
 
 ```bash
-poetry env use python3.10
+poetry env use python3.12
 poetry install
 pnpm --dir src/web install --frozen-lockfile
 pnpm --dir src/web run build
-poetry run limivia serve
+poetry run limivia-server serve
 ```
 
 打开 **http://127.0.0.1:8000**。标准运行只有一个后端服务，托管 `src/web/dist`；Vite dev 仅用于需要 HMR 的前端开发。前端未构建时服务会给出明确错误。
 
 ```bash
-poetry run limivia doctor
-poetry run python -m limivia.commands.app serve --port 8000
+poetry run limivia-server doctor
+poetry run python -m limivia_server.commands.app serve --port 8000
 ```
 
-可用 `poetry run python --version` 核对实际解释器。若本机 Poetry 创建的环境版本不符，移除本项目的错误虚拟环境后，执行 `python3.10 -m venv .venv`、`poetry env use .venv/bin/python`、`poetry install`；本次已采用项目内 `.venv` 并确认 Python 3.10.20。
+两个项目各使用自己的 Python 3.12 `.venv`，可通过 `poetry run python --version` 和 `poetry env info --path` 核对。原项目的 Python 3.10 缓存环境已在目录迁移前移除，避免旧安装路径指向新的 SDK；本次实际解释器为 Python 3.12.3。
 
 可通过 `LIMIVIA_HOST`、`LIMIVIA_PORT` 设置监听地址与端口。默认仅监听本机。VS Code 选择“LIMIVIA 后端”调试，`web: build` 会先通过 `web: install` 执行 `pnpm install --frozen-lockfile` 准备前端依赖，再构建前端；安装或构建失败时不会启动后端。首次安装依赖需要访问包源，锁文件与依赖声明不一致时需先手动更新并检查锁文件。所有调试配置读取 `.env`，可从 `.env.example` 复制。终端 CLI 读取当前 shell 环境变量。
 
@@ -95,7 +97,7 @@ ESP32 固件及配套工具已迁至独立仓库 **limivia-esp32**，本机目�
 ```bash
 pnpm --dir src/web run build
 poetry run pytest -q
-poetry run ruff check src/limivia tests
+poetry run ruff check src/limivia_server tests
 pnpm --dir src/web run lint
 pnpm --dir src/web test
 pnpm --dir src/web exec playwright install chromium
@@ -109,10 +111,13 @@ pnpm --dir src/web run test:e2e
 ## 工程结构与扩展
 
 ```text
-src/limivia/       FastAPI 托管、后端 USB/BLE 传输、工作台 Typer CLI
-src/web/          React 工作台、WebSocket 客户端、前端测试
-.agents/skills/   仅本工程使用的板卡与芯片知识
+src/limivia_server/  FastAPI 托管、SDK 事件与网页协议适配、工作台 Typer CLI
+src/web/            React 工作台、WebSocket 客户端、前端测试
+.agents/skills/     仅本工程使用的板卡与芯片知识
+../limivia/         独立 Python SDK：USB/BLE、命令、强类型事件
 ```
+
+Server 使用 `AsyncLimivia`，每个浏览器连接对应一个 SDK 会话。SDK 自动握手、排队命令、关联请求并产生类型化事件；适配层保留网页已有 HTTP/WebSocket 格式，并独立映射浏览器请求 ID。
 
 协议真源见 [设备协议](docs/protocol.md)，页面状态与交互约定见 [界面契约](docs/ui-state.md)。未来新增硬件能力时，协调对应固件仓库的校验与能力描述，并更新本仓库前端控件和协议测试。白垣视觉 Token 来源于苍渊·白垣 v1.1，MANAS 负责工作台关系与交互。
 

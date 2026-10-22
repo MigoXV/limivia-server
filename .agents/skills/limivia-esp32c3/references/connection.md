@@ -4,7 +4,7 @@
 
 ## 后端设备连接
 
-- 默认 BLE，后端用 Bleak 搜索服务 UUID 并订阅 GATT 通知；USB 用 pySerial 打开匹配 VID/PID 的原生串口，115200、DTR/RTS 均为 false。最终由 `hello` 检查板型和协议，不仅凭名称或 VID/PID 判断。
+- 默认 BLE，后端经 AsyncLimivia SDK 用 Bleak 搜索服务 UUID 并订阅 GATT 通知；USB 用 pySerial 打开匹配 VID/PID 的原生串口，115200、DTR/RTS 均为 false。SDK 建立连接时先自动 `hello` 检查板型和协议，不仅凭名称或 VID/PID 判断。
 - 网页先“搜索设备”，再选择与连接。浏览器只需同源 HTTP/WebSocket，不依赖 Web Serial / Web Bluetooth，不需要浏览器实验特性。
 - 所用串口和蓝牙适配器位于后端运行环境。WSL、容器与虚拟机需要自行提供设备或系统蓝牙服务，网页端口转发不转发硬件。
 - Linux BLE 需要可用控制器、BlueZ 与系统 D-Bus 权限；USB 需要后端用户的串口权限。Windows/macOS 需允许运行后端的应用使用蓝牙。

@@ -1,8 +1,8 @@
 # LIMIVIA 设备协议 v1
 
-本文件为工作台、固件与未来 AI 工具共享的协议真源。网页协议客户端位于 `src/web/src/device.ts`，后端硬件传输与桥接位于 `src/limivia/devices`；ESP32 固件已独立至 `limivia-esp32` 仓库的 `main/control.c`、`main/transport.c`。固件仓库保留注明来源提交的协议快照，以支持独立检出和构建。协议变更需同步两仓库实现、快照及兼容性测试；握手中的 `protocol` 是兼容性边界，固件版本独立发布。
+本文件为工作台、固件与未来 AI 工具共享的协议真源。网页协议客户端位于 `src/web/src/device.ts`，后端桥接位于 `src/limivia_server/devices`，USB/BLE 传输与 Python 事件类型由独立 SDK `../limivia/src/limivia` 提供；ESP32 固件已独立至 `limivia-esp32` 仓库的 `main/control.c`、`main/transport.c`。固件仓库保留注明来源提交的协议快照，以支持独立检出和构建。协议变更需同步两仓库实现、快照及兼容性测试；握手中的 `protocol` 是兼容性边界，固件版本独立发布。
 
-本次仅将宿主硬件传输从浏览器迁到 Python 后端，设备协议 v1、操作、UUID 与固件行为保持不变，无需重新烧录。网页与后端的桥接约定见 [后端控制通道](backend-control.md)。
+宿主硬件传输由 Python SDK 承担，server 使用 SDK 事件适配网页，设备协议 v1、操作、UUID 与固件行为保持不变，无需重新烧录。网页与后端的桥接约定见 [后端控制通道](backend-control.md)。
 
 ## 连接与帧
 

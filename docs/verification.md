@@ -1,5 +1,18 @@
 # 工作台验证记录
 
+## 2026-10-22：Server / SDK 拆分
+
+现有仓库改名为 limivia-server，Python 包改为 limivia_server；新建独立 limivia SDK，server 使用 editable path dependency 接入。两项目均使用独立 Python 3.12.3 .venv，旧项目 Python 3.10 缓存环境已移除。
+
+- SDK：59 项 Python 测试、Ruff、mypy 类型检查、CLI 和示例帮助验证通过。
+- Server：22 项 Python 测试、Ruff、doctor 验证通过。
+- 前端：lint、8 项单元测试、生产构建、15 项 Playwright E2E 全部通过。
+- 两项目：Poetry 锁文件检查、wheel 和 sdist 构建通过。SDK wheel 可独立导入，环境不包含 FastAPI；server wheel 使用正常版本依赖，不含本机路径。
+- 协议 v1 和网页消息格式保持兼容。自动握手、请求 ID 映射、事件转发、命令失败、关闭／取消的资源释放已通过模拟传输测试。
+- 本次未执行真实 USB/BLE 实机验证，未修改或烧录固件。详细覆盖见 [SDK 验证记录](../../limivia/docs/verification.md)。
+
+以下保留历史验证结果；其中 Python 3.10 属于迁移前环境。
+
 ## 首版记录
 
 日期：2026-10-21，来源：提交 `a6a88af`。

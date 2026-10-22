@@ -1,17 +1,25 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
+from limivia import AsyncLimivia, Backend
 
-from limivia.devices.api import device_router
-from limivia.devices.transports import DeviceBackend
-from limivia.paths import WEB_DIST
+from limivia_server.devices.api import device_router
+from limivia_server.paths import WEB_DIST
 
 
-def create_app(dist: Path = WEB_DIST, backend: DeviceBackend | None = None) -> FastAPI:
+def create_app(dist: Path = WEB_DIST, backend: Backend | None = None) -> FastAPI:
     if not (dist / "index.html").is_file():
         raise RuntimeError("前端尚未构建，请先执行 pnpm --dir src/web run build")
-    app = FastAPI(title="LIMIVIA", version="0.1.0")
+    sdk = AsyncLimivia(backend=backend)
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        async with sdk:
+            yield
+
+    app = FastAPI(title="LIMIVIA", version="0.1.0", lifespan=lifespan)
 
     @app.get("/api/health")
     async def health() -> dict[str, str]:
@@ -28,7 +36,7 @@ def create_app(dist: Path = WEB_DIST, backend: DeviceBackend | None = None) -> F
             "default_transport": "ble",
         }
 
-    app.include_router(device_router(backend))
+    app.include_router(device_router(sdk))
 
     @app.api_route("/api", methods=["GET", "HEAD"], include_in_schema=False)
     @app.api_route("/api/{path:path}", methods=["GET", "HEAD"], include_in_schema=False)
