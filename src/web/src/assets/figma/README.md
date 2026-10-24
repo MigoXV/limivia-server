@@ -1,0 +1,49 @@
+# Figma 静态资源
+
+2026-10-24 的 v3 工作台依据同一设计文件的工作台、外设目录与 PWM、离线流程、联网通信页面实现。六类业务导航采用文字入口，继续使用 `board.svg` 作为“引脚与占用”图标；下表其余旧实验导航资源保留来源记录，不代表当前导航结构。流程节点与连线依据真实流程定义动态生成，未把设计截图或示例流程作为运行数据。
+
+导航图标已按 [LIMIVIA · LED 白垣设计](https://www.figma.com/design/AzGxH7vvqqpSfxBXUBRYbf/limivia?node-id=33-2888) 于 2026-10-22 重新下载核对，与现有六个 SVG 逐字节一致，继续复用本地文件。板卡功能示意沿用 [原完整交互设计](https://www.figma.com/design/9WbAWG0bfGyDgJPDugJMTh?node-id=33-2887)。全部资源保留原始 SVG 与固有尺寸；应用从本地导入，不使用临时下载链接。
+
+| 文件 | 设计节点 | 固有尺寸 | 用途 |
+| --- | --- | --- | --- |
+| led.svg | 111:1871 | 16 × 16 | 板载 LED 导航 |
+| gpio.svg | 111:1875 | 16 × 16 | 数字引脚导航 |
+| pwm.svg | 111:1878 | 16 × 16 | PWM 导航 |
+| adc.svg | 111:1881 | 16 × 16 | 模拟采集导航 |
+| timer.svg | 111:1885 | 16 × 16 | 板载定时导航 |
+| board.svg | 111:1890 | 16 × 16 | 板卡与引脚入口 |
+| board-preview.svg | 77:8250 | 250 × 313 | 引脚与资源弹窗中的功能示意 |
+
+功能示意不提供实物接线依据。原型外围的简化引脚标注不沿用到实际接线；完整的 32 引脚、正反面和保护信息继续由 `Board.tsx` 与 `board.ts` 提供。
+
+LED 示意由设计中的几何图层实现；ADC 曲线、刻度和读数根据设备采样动态生成，不使用原型示例数据或截图。
+
+2026-10-24 首页 LED 同步新增下列原始导出，来自白垣 `2138:1351`、苍渊 `2138:1403`。SVG 内容及固有尺寸保持不变，通过容器裁切显示板底部的 USB、D5、D4，两个主题分别使用各自的原始资源。
+
+| 文件 | 固有尺寸 | 用途 |
+| --- | --- | --- |
+| led-board-vallum.svg / led-board-abyssus.svg | 293.236 × 537.6 | 板底部局部示意 |
+| led-target-vallum.svg / led-target-abyssus.svg | 28 × 28 | D5 定位圈 |
+
+板载 LED 映射仅适用于已确认的 `luatos-esp32c3-usb`。字体与布局的核对记录见 [设计同步核对](../../../../../docs/figma-ui-audit.md)。
+
+2026-10-24 再次同步 V4 公共侧栏组件 `2160:3146` 与导航组件 `2160:3125`。新增 `v4/` 目录，包含 workspace、debug、flow、network、files、maintenance、firmware、new、pins 九类图标各自的 Vallum/Abyssus 原始 SVG，共 18 个，固有尺寸均为 16×16。资源来自主工作台和 PWM 调试画板的 `get_design_context` 导出，文件内容不作修改；`Sidebar.tsx` 按主题选择对应文件，不重新绘制或过滤改色。原 `board.svg` 保留为历史来源记录，V4 侧栏使用新 pins 图标。
+
+
+## V5 品牌标识
+
+用户指定 [Logo 品牌页](https://www.figma.com/design/AzGxH7vvqqpSfxBXUBRYbf/limivia?node-id=2199-9358)。`logo-vallum.svg` 来自主标志 `2191:8451`，`logo-abyssus.svg` 来自苍渊 32px 实例 `2191:8505`，均通过设计上下文下载原始 SVG。固有画布 32×32，图形 20×26，在侧栏品牌槽按固有尺寸显示，两主题分别加载原始资产。未改写矢量路径，也没有使用临时下载地址运行。
+
+V5 完整物理板图继续由 `board.ts` 与 `Board.tsx` 提供 32 个位置、正反面及保护信息；Figma 原型使用该实际板图的可编辑矢量，未用旧 `board-preview.svg` 代替接线依据。
+
+## V5 紧凑板图与功能家族
+
+2026-10-24 从同一文件的紧凑板图和功能行设计上下文下载下列原始 SVG，保留文件内容、根尺寸及 viewBox。天线放在板图内的对应位置，功能箭头放在每行末尾；均作为 alpha mask 使用，由既有语义 Token 提供两主题前景色，未改写路径。其余板体、芯片、引脚、保护纹理与状态继续由原有动态 SVG 组件表达。
+
+| 文件 | 设计节点 | 固有尺寸 | 调用位置 |
+| --- | --- | --- | --- |
+| compact-antenna.svg | 2252:9952 | 136×28 | `Board.tsx` 常规与短板天线，x=112/y=12 |
+| compact-antenna-narrow.svg | 2264:17799 | 120×28 | `Board.tsx` 窄板天线，x=84/y=12 |
+| family-chevron.svg | 2252:10980 | 16×16 | `wiring.css` 的功能行与诊断入口，展开时旋转 90° |
+
+侧栏、Logo 与 favicon 沿用既有原始资源。板载 LED 详情嵌入右栏后移除重复的板底裁切图，D5 的实际定位统一通过中央板图和 GPIO13 内的 LED 矢量符号提供；旧裁切资源保留给非嵌入式 `LedPanel`。

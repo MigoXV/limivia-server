@@ -4,8 +4,8 @@ import pytest
 from fastapi.testclient import TestClient
 from typer.testing import CliRunner
 
-from limivia.commands.app import app as cli
-from limivia.web.app import create_app
+from limivia_server.commands.app import app as cli
+from limivia_server.web.app import create_app
 
 
 @pytest.fixture()
@@ -13,13 +13,13 @@ def client(tmp_path: Path):
     (tmp_path / "index.html").write_text("<!doctype html><title>LIMIVIA</title>")
     (tmp_path / "assets").mkdir()
     (tmp_path / "assets" / "app.js").write_text("console.log('limivia')")
-    with TestClient(create_app(tmp_path)) as instance:
+    with TestClient(create_app(tmp_path, data_dir=tmp_path / "data")) as instance:
         yield instance
 
 
 def test_serving_and_spa(client):
     assert client.get("/api/health").json() == {"status": "ok"}
-    assert client.get("/api/info").json()["protocol"] == 1
+    assert client.get("/api/info").json()["protocol"] == 3
     assert client.get("/openapi.json").json()["info"]["title"] == "LIMIVIA"
     assert client.get("/docs").status_code == 200
     assert client.get("/").status_code == 200

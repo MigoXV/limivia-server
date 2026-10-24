@@ -1,103 +1,71 @@
-import { describe, expect, it, vi } from 'vitest'
-import { DeviceClient, LineReader, type Transport } from './device'
-
-class MockTransport implements Transport {
-  writes: string[] = []
-  onData: (text: string) => void = () => {}
-  onClose: () => void = () => {}
-  respond = true
-  async connect(data: (text: string) => void, close: () => void) {
-    this.onData = data
-    this.onClose = close
-  }
-  async disconnect() {}
-  async write(bytes: Uint8Array) {
-    const text = new TextDecoder().decode(bytes)
-    this.writes.push(text)
-    const request = JSON.parse(text)
-    if (!this.respond) return
-    const result =
-      request.op === 'hello'
-        ? { protocol: 1, board: 'luatos-esp32c3-usb', state: { pins: [] } }
-        : { executed: true }
-    const reply = JSON.stringify({ v: 1, id: request.id, ok: true, result }) + '\n'
-    this.onData(reply.slice(0, 8))
-    this.onData(reply.slice(8))
-  }
-}
-
-describe('line framing', () => {
-  it('handles fragmented messages, multiple lines and CRLF', () => {
-    const lines: string[] = []
-    const parser = new LineReader((line) => lines.push(line))
-    parser.push('{"v":')
-    parser.push('1}\r\n{"v":1}\n')
-    expect(lines.map((line) => JSON.parse(line))).toEqual([{ v: 1 }, { v: 1 }])
+import { describe, it, expect } from 'vitest'
+import {
+  decodeBinary,
+  adcSamples,
+  boardState,
+  initialState,
+  terminal,
+  type Operation,
+} from './device'
+describe('v3 business projections', () => {
+  it('validates canonical binary and length', () => {
+    expect([...decodeBinary({ data: 'AQI=', length: 2 })]).toEqual([1, 2])
+    expect(() => decodeBinary({ data: 'AQI=', length: 1 })).toThrow()
+    expect(() => decodeBinary({ data: 'AR==', length: 1 })).toThrow()
   })
-  it('discards entire oversized frame and recovers at delimiter', () => {
-    const lines: string[] = []
-    const parser = new LineReader((line) => lines.push(line), 4)
-    parser.push('123456')
-    parser.push('7\nok\n')
-    expect(lines).toEqual(['ok'])
+  it('decodes periodic ADC as little endian records and preserves uncalibrated mV', () => {
+    const bytes = new Uint8Array(8)
+    const view = new DataView(bytes.buffer)
+    view.setInt32(0, 2048, true)
+    view.setInt32(4, -1, true)
+    const value = adcSamples(
+      { events: [{ data: btoa(String.fromCharCode(...bytes)), sequence: 3 }] },
+      4,
+      9,
+    )[0]
+    expect(value.raw).toBe(2048)
+    expect(value.millivolts).toBeNull()
+    expect(value.calibrated).toBe(false)
+    expect(value.pin).toBe(4)
+  })
+  it('does not infer completion from accepted or notifications', () => {
+    expect(terminal({ status: 'accepted' } as Operation)).toBe(false)
+    expect(terminal({ status: 'unknown' } as Operation)).toBe(true)
+  })
+  it('board is an empty read-only projection before discovery', () => {
+    expect(boardState(initialState).pins.every((p) => p.mode === 'idle')).toBe(true)
+    expect(boardState(initialState).sessions[0].active).toBe(false)
   })
 })
-describe('device lifecycle', () => {
-  it('handshakes and serializes requests', async () => {
-    const transport = new MockTransport()
-    const client = new DeviceClient()
-    await client.connect('usb', transport)
-    await Promise.all([client.request('state'), client.request('gpio.read', { pin: 13 })])
-    expect(transport.writes.map((text) => JSON.parse(text).op)).toEqual([
-      'hello',
-      'state',
-      'gpio.read',
-    ])
-    await client.disconnect()
+
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { Result } from './Forms'
+describe('readable typed results', () => {
+  it('shows uncalibrated ADC without inventing zero mV', () => {
+    const html = renderToStaticMarkup(
+      createElement(Result, { value: { raw: 2048, millivolts: null } }),
+    )
+    expect(html).toContain('未校准')
+    expect(html).toContain('2048')
   })
-  it('does not retry a timed out write and ignores unrelated responses', async () => {
-    vi.useFakeTimers()
-    const transport = new MockTransport()
-    const client = new DeviceClient()
-    await client.connect('ble', transport)
-    transport.respond = false
-    const request = client.request('gpio.set', { pin: 13 })
-    const failure = expect(request).rejects.toThrow('操作可能已执行')
-    await Promise.resolve()
-    transport.onData('{"v":1,"id":999,"ok":true,"result":{}}\n')
-    await vi.advanceTimersByTimeAsync(6001)
-    await failure
-    expect(transport.writes.length).toBe(2)
-    await client.disconnect()
-    vi.useRealTimers()
+  it('preserves continuous ADC tags and raw units', () => {
+    const bytes = new Uint8Array(4)
+    new DataView(bytes.buffer).setUint32(0, (3 << 13) | (1 << 16) | 2000, true)
+    const html = renderToStaticMarkup(
+      createElement(Result, {
+        format: 'adc.continuous',
+        value: { length: 4, data: btoa(String.fromCharCode(...bytes)) },
+      }),
+    )
+    expect(html).toContain('ADC type2')
+    expect(html).toContain('2000')
+    expect(html).toContain('无校准电压单位')
   })
-  it('disconnect cancels pending and queued writes', async () => {
-    const transport = new MockTransport()
-    const client = new DeviceClient()
-    await client.connect('usb', transport)
-    transport.respond = false
-    const first = client.request('state')
-    const second = client.request('gpio.set', { pin: 13 })
-    const firstFailure = expect(first).rejects.toThrow('连接已关闭')
-    const secondFailure = expect(second).rejects.toThrow('设备已断开')
-    await Promise.resolve()
-    await client.disconnect()
-    await firstFailure
-    await secondFailure
-    expect(transport.writes.length).toBe(2)
-  })
-  it('surfaces firmware errors and supports subsequent recovery', async () => {
-    const transport = new MockTransport()
-    const client = new DeviceClient()
-    await client.connect('usb', transport)
-    transport.respond = false
-    const request = client.request('gpio.set', { pin: 18 })
-    const failure = expect(request).rejects.toThrow('保留')
-    await Promise.resolve()
-    transport.onData('{"v":1,"id":2,"ok":false,"error":{"code":"protected_pin"}}\n')
-    await failure
-    transport.respond = true
-    expect(await client.request('state')).toEqual({ executed: true })
-    await client.disconnect()
+  it('explains queued delivery without claiming remote success', () => {
+    const html = renderToStaticMarkup(
+      createElement(Result, { value: { delivery: 'queued', message_id: 7 } }),
+    )
+    expect(html).toContain('本地已入队（非应用确认）')
   })
 })

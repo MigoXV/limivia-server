@@ -1,0 +1,442 @@
+.board-main {
+  overflow: hidden;
+}
+.board-main > .page-heading,
+.wiring-toolbar {
+  flex-shrink: 0;
+}
+.wiring-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.wiring-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.wiring-toolbar input {
+  width: 220px;
+  min-width: 0;
+}
+.wiring-toolbar > span {
+  font-size: 13px;
+}
+.board-workspace {
+  flex: 1;
+  min-height: 0;
+  max-height: calc(100dvh - 260px);
+  display: grid;
+  grid-template-columns: minmax(288px, 1fr) 400px;
+  gap: 24px;
+  overflow: hidden;
+}
+.board-stage,
+.board-inspector {
+  min-width: 0;
+  min-height: 0;
+}
+.board-stage {
+  overflow: hidden;
+}
+.board-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 16px;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+}
+.inspector-identity {
+  flex: 0 0 64px;
+  min-height: 64px;
+}
+.inspector-identity h2 {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  margin: 0 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.inspector-identity p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+.inspector-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  padding-bottom: 8px;
+}
+.inspector-content > form {
+  margin-bottom: 16px;
+}
+.board-inspector .fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-block: 12px;
+}
+.board-inspector .field {
+  min-width: 0;
+}
+.board-inspector input,
+.board-inspector select,
+.board-inspector textarea {
+  max-width: 100%;
+}
+.board-inspector .row {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.board-inspector details {
+  margin-top: 16px;
+}
+.board-inspector summary {
+  font-size: 12px;
+}
+.board-inspector form > .row {
+  margin-top: 16px;
+}
+.board-inspector fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border: 1px solid var(--border);
+}
+.board-inspector fieldset label {
+  font-size: 12px;
+}
+.role-row {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.role-row .field {
+  flex: 1;
+}
+.role-row button {
+  margin-bottom: 0;
+}
+.pin-functions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.function-group h3 {
+  font-size: 12px;
+  line-height: 18px;
+  min-height: 22px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.function-row {
+  width: 100%;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  padding: 4px 12px;
+  text-align: left;
+  transition: background var(--av-transition);
+}
+.function-row strong {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+.function-row small {
+  margin-left: auto;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.function-row .family-chevron {
+  margin-left: auto;
+}
+.function-row small + .family-chevron {
+  margin-left: 0;
+}
+.function-row[aria-expanded='true'] {
+  background: var(--selected);
+}
+.family-chevron {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  background: var(--text-secondary);
+  mask: url('./assets/figma/family-chevron.svg') center / 16px 16px no-repeat;
+  mask-mode: alpha;
+}
+.family-chevron.expanded {
+  transform: rotate(90deg);
+}
+.function-subtypes {
+  padding-left: 12px;
+}
+.function-subtypes .function-row {
+  font-weight: 400;
+}
+.inspector-diagnostics {
+  flex: 0 0 32px;
+  margin: 0;
+}
+.pin-table button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-top: 4px;
+}
+.pin-table .board-dialog-heading button {
+  width: auto;
+  margin: 0;
+}
+.board-selection-help {
+  padding: 0;
+}
+.board .grouped-pin .pin-pad {
+  stroke: var(--focus);
+  stroke-width: 2;
+}
+.board .grouped-pin text {
+  font-weight: 500;
+}
+.board .assigned-pin .pin-hit {
+  fill: var(--hover);
+  stroke: var(--border-strong);
+  stroke-dasharray: 3 2;
+}
+.board .grouped-pin .pin-hit {
+  stroke: var(--focus);
+  stroke-width: 2;
+  stroke-dasharray: none;
+}
+.inspector-back {
+  display: none;
+}
+.board-main > .diagnostic-bar {
+  flex-shrink: 0;
+  margin-top: 16px;
+  padding-top: 0;
+  min-height: 24px;
+}
+.board-main > .diagnostic-bar button {
+  min-height: 24px;
+  padding-block: 0;
+}
+.board-inspector .home-led {
+  padding: 0;
+  border: 0;
+}
+.board-inspector .embedded-led {
+  min-height: 308px;
+}
+.embedded-led .home-led-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-height: 0;
+}
+.embedded-led .led-output-state {
+  min-height: 82px;
+  padding-top: 24px;
+  position: relative;
+}
+.embedded-led .led-output-state > div:last-child {
+  gap: 8px;
+  min-height: 0;
+}
+.embedded-led .led-output-state > div:last-child > small:first-child {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.embedded-led .led-output-state h3 {
+  font-size: 22px;
+  line-height: 30px;
+  text-wrap: wrap;
+}
+.embedded-led .led-indicator {
+  width: 16px;
+  height: 24px;
+  flex-basis: 16px;
+}
+.embedded-led .led-indicator > * {
+  display: none;
+}
+.embedded-led .led-indicator::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--text-secondary);
+  border-radius: 50%;
+}
+.embedded-led .led-indicator.on::before,
+.embedded-led .led-indicator.breath::before {
+  background: var(--accent-strong);
+}
+.embedded-led .led-mode-row {
+  gap: 8px;
+}
+.embedded-led .mode-switch {
+  gap: 0;
+}
+.embedded-led .mode-switch button {
+  width: 112px;
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+.embedded-led .led-actions {
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+.embedded-led .led-actions > .action-wrap button {
+  width: 104px;
+  padding-inline: 4px;
+}
+.embedded-led .led-actions > .action-wrap:last-child button {
+  border: 1px solid var(--border);
+}
+.embedded-led .led-links {
+  min-height: 0;
+}
+.led-output-note {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+  margin-top: 8px;
+}
+.led-other-functions {
+  margin-bottom: 12px;
+  width: 100%;
+  text-align: left;
+}
+.sidebar .brand-mark {
+  flex: 0 0 32px;
+  object-fit: contain;
+}
+.sidebar .context-resource small {
+  color: var(--text-primary);
+}
+.work-area {
+  container-type: inline-size;
+  container-name: board-area;
+}
+.board-led-target {
+  cursor: pointer;
+}
+.board-led-target:focus-visible > rect {
+  stroke: var(--focus);
+  stroke-width: 2;
+}
+@media (max-width: 1199px) {
+  .board-workspace {
+    grid-template-columns: minmax(288px, 1fr) 360px;
+    gap: 16px;
+  }
+  .embedded-led .led-actions > .action-wrap button {
+    width: 96px;
+  }
+}
+@media (max-width: 999px), (max-height: 649px) {
+  .board-main {
+    overflow: auto;
+  }
+  .board-workspace {
+    display: block;
+    overflow: visible;
+    flex: 0 0 auto;
+    min-height: auto;
+    max-height: none;
+  }
+  .board-stage,
+  .board-inspector {
+    overflow: visible;
+  }
+  .board-embedded {
+    height: auto;
+  }
+  .board-embedded .board-viewport {
+    flex: none;
+    height: 388px;
+  }
+  .board-inspector {
+    margin-top: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .inspector-identity {
+    flex-basis: auto;
+  }
+  .board-workspace.has-selection:not(.picking-pin):not(:has(.board-dialog[open])) .board-stage {
+    display: none;
+  }
+  .board-workspace.has-selection .inspector-back {
+    display: block;
+    margin-bottom: 16px;
+  }
+  .wiring-toolbar > .flex-space {
+    display: none;
+  }
+  .embedded-led .led-actions {
+    flex-wrap: wrap;
+  }
+}
+@container board-area (max-width: 760px) {
+  .board-main {
+    overflow: auto;
+  }
+  .board-workspace {
+    display: block;
+    overflow: visible;
+    flex: 0 0 auto;
+    min-height: auto;
+    max-height: none;
+  }
+  .board-stage,
+  .board-inspector {
+    overflow: visible;
+  }
+  .board-embedded {
+    height: auto;
+  }
+  .board-embedded .board-viewport {
+    flex: none;
+    height: 388px;
+  }
+  .board-inspector {
+    margin-top: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .inspector-identity {
+    flex-basis: auto;
+  }
+  .board-workspace.has-selection:not(.picking-pin):not(:has(.board-dialog[open])) .board-stage {
+    display: none;
+  }
+  .board-workspace.has-selection .inspector-back {
+    display: block;
+    margin-bottom: 16px;
+  }
+  .wiring-toolbar > .flex-space {
+    display: none;
+  }
+  .embedded-led .led-actions {
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,281 @@
+.board-wrap {
+  margin-top: 12px;
+}
+.board {
+  display: block;
+  flex: 0 0 auto;
+  max-width: none;
+  margin: auto;
+}
+.board-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 32px;
+}
+.board-toolbar h2 {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  margin: 0;
+}
+.board-toolbar > button {
+  padding-inline: 8px;
+}
+.board-toolbar-space {
+  flex: 1;
+}
+.board-toolbar .board-orientation {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.board-viewport {
+  height: 480px;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+.board-embedded {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  margin: 0;
+}
+.board-embedded .board-viewport {
+  flex: 1;
+  height: auto;
+}
+.pcb {
+  fill: var(--surface-subtle);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+.antenna {
+  fill: var(--accent-strong);
+}
+.chip {
+  fill: var(--text-primary);
+}
+.chip-label {
+  fill: var(--bg-primary);
+  font-family: inherit;
+  font-size: 13px;
+}
+.board-small {
+  fill: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+}
+.led {
+  fill: var(--border-strong);
+  stroke: var(--text-secondary);
+}
+.led.active {
+  fill: var(--accent-strong);
+  stroke: var(--text-primary);
+}
+.usb {
+  fill: var(--surface);
+  stroke: var(--text-secondary);
+}
+.usb-slot {
+  fill: var(--surface-subtle);
+  stroke: var(--border-strong);
+}
+.caption {
+  color: var(--text-secondary);
+  font-size: 10px;
+  text-align: center;
+}
+/* 用户指定的接线语义颜色，仅作用于实物板图。 */
+.board-wrap {
+  --pin-5v: #dc2626;
+  --pin-ground: #111111;
+  --pin-3v3: #eab308;
+  --pin-analog: #2563eb;
+  --pin-digital: #16a34a;
+}
+.pin-5v {
+  --pin-color: var(--pin-5v);
+}
+.pin-ground {
+  --pin-color: var(--pin-ground);
+}
+.pin-3v3 {
+  --pin-color: var(--pin-3v3);
+}
+.pin-analog {
+  --pin-color: var(--pin-analog);
+}
+.pin-digital {
+  --pin-color: var(--pin-digital);
+}
+.pin-special {
+  --pin-color: var(--text-secondary);
+}
+.pin {
+  cursor: pointer;
+}
+.pin .pin-hit {
+  fill: transparent;
+  stroke: none;
+}
+.pin .pin-pad {
+  fill: var(--pin-color);
+  stroke: var(--text-secondary);
+  stroke-width: 1;
+}
+.pin-protection-stripe {
+  stroke: var(--bg-primary);
+  stroke-width: 1;
+}
+.pin-protection-hatch {
+  pointer-events: none;
+}
+.pin-led-mark {
+  fill: none;
+  stroke: var(--bg-primary);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+  animation: board-led-locate 2.4s ease-in-out 3;
+}
+@keyframes board-led-locate {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.65;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pin-led-mark {
+    animation: none;
+  }
+}
+.pin text {
+  fill: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+}
+.pin.selected-pin .pin-pad {
+  stroke: var(--text-primary);
+  stroke-width: 3;
+  paint-order: stroke;
+}
+.pin.selected-pin text {
+  font-weight: 500;
+  text-decoration: underline;
+}
+.pin:focus {
+  outline: none;
+}
+.pin:focus .pin-hit,
+.pin.inspected-pin .pin-hit {
+  stroke: var(--focus);
+  stroke-width: 2;
+}
+.board-controls-row,
+.board-controls {
+  display: flex;
+  align-items: center;
+}
+.board-controls {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.board-controls button {
+  border: 0;
+  border-radius: 0;
+  min-height: 30px;
+  padding: 4px 8px;
+  width: 44px;
+}
+.board-protection-legend {
+  color: var(--text-secondary);
+}
+.board-protection-legend i {
+  background: repeating-linear-gradient(135deg, var(--bg-primary) 0 1px, transparent 1px 4px)
+    var(--text-secondary);
+}
+.board-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 12px;
+  font-size: 12px;
+  line-height: 18px;
+  min-height: 24px;
+  align-items: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.board-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.board-legend i {
+  width: 10px;
+  height: 14px;
+  flex-shrink: 0;
+  background: var(--pin-color);
+  border: 1px solid var(--text-secondary);
+  border-radius: 2px;
+}
+.board-detail {
+  min-height: 64px;
+  margin: 16px 0 8px;
+}
+.board-dialog {
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 24px;
+  width: min(640px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+.board-dialog::backdrop {
+  background: var(--text-primary);
+  opacity: 0.45;
+}
+.board-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.board-dialog-heading h2 {
+  font-size: 16px;
+}
+.board-scroll {
+  overflow: auto;
+}
+.board-dialog .board {
+  width: 576px;
+  height: 768px;
+  max-width: none;
+  margin-block: 16px;
+}
+.board-led-selected {
+  stroke: var(--focus);
+  stroke-width: 1;
+}
+.board-legend .board-protection-legend i {
+  width: 16px;
+  background: repeating-linear-gradient(135deg, var(--bg-primary) 0 1px, transparent 1px 4px)
+    var(--text-secondary);
+}
+.board-dialog .board-legend {
+  margin-top: 12px;
+}

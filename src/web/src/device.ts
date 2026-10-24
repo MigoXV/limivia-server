@@ -1,299 +1,452 @@
-export type LinkKind = 'usb' | 'ble'
-export type PinMode = 'idle' | 'input' | 'output' | 'pwm' | 'adc' | 'timer'
-export interface Pin {
-  pin: number
-  mode: PinMode
-  pull: string
-  level: number | null
+export type LinkKind = 'usb' | 'ble' | 'ws' | 'mqtt'
+export type Value = null | boolean | number | string | Value[] | { [key: string]: Value }
+export type Args = Record<string, Value>
+export interface Parameter {
+  name: string
+  type: string
+  required?: boolean
+  min?: number
+  max?: number
+  values?: string
 }
-export interface Pwm {
-  pin: number
-  frequency: number
-  duty: number
-  resolution: number
-  breath_ms: number
+export interface Capability {
+  kind: string
+  available: boolean
+  capacity: number
+  pin_roles: string
+  required_pins: string
+  config: Parameter[]
+  actions: { action: string; args: Parameter[]; payload?: boolean }[]
 }
-export interface Timer {
+export interface Resource {
   id: number
-  pin: number
-  kind: 'pulse' | 'blink'
-  high_ms: number
-  low_ms: number
-  count: number
-  elapsed_ms: number
+  instance: number
+  kind: string
+  state: 'opening' | 'ready' | 'closing' | 'fault'
+  parent: number
+  pin_mask: number
+  definition: Args
+  driver_error: number
+  cleanup_error: number
+}
+export interface Identity {
+  board: string
+  device_id: string
+  boot_id: string
+  build_id: string
+  profile: string
+  firmware: string
+  protocol: number
+  contract: string
+  jsonrpc: string
+  batch_max: number
+}
+export interface Operation {
+  id: string
+  op: string
+  status: string
+  request_id?: number
+  job_id?: number
+  boot_id: string
+  device_id: string
+  generation: number
+  created: number
+  updated: number
+  result: Args | null
+  error: Args | null
+  job?: Args
+  result_expired: boolean
+  external_effect_possible: boolean
+  parent: string | null
+  progress?: { phase: string; bytes: number; total: number; sha256: string; upload_id?: number }
+  cancel_requested?: boolean
+}
+export interface DeviceState {
+  wiring_revision?: number
+  wiring_bindings?: Record<string, import('./wiring').WiringBinding>
+  status: string
+  kind: LinkKind
+  generation: number
+  cursor: number
+  identity: Identity | null
+  discovery: {
+    identity: Identity
+    pins: { pin: number; digital: boolean; adc1: boolean; deep_sleep_wake: boolean }[]
+    resources: Capability[]
+    operations: { op: string; available: boolean; params: string }[]
+    raw_pages: Value[]
+  } | null
+  snapshot: {
+    revision: number
+    epoch: number
+    resources: Resource[]
+    pages: { stopping: boolean; autostart_inhibited: boolean; owner_endpoint: number }[]
+  } | null
+  stale: boolean
+  error: Value
+  control: { held: boolean; mine: boolean; owner_online: boolean }
+  handles: Record<string, Record<string, Value>>
+  resource_values: Record<string, Args>
+  samples: Record<string, Value[]>
+  sampling: string[]
+  resource_owners: Record<string, boolean>
+}
+export interface CatalogItem {
+  op: string
+  group: string
+  label: string
+  fields: { name: string; required: boolean }[]
+  observer: boolean
+  internal: boolean
+  confirmation: string | null
+}
+export interface Feed {
+  type: string
+  cursor: number
+  data?: unknown
+  operations?: Operation[]
+}
+export const initialState: DeviceState = {
+  status: 'disconnected',
+  kind: 'ble',
+  generation: 0,
+  cursor: 0,
+  identity: null,
+  discovery: null,
+  snapshot: null,
+  stale: true,
+  error: null,
+  control: { held: false, mine: false, owner_online: false },
+  handles: {},
+  resource_owners: {},
+  resource_values: {},
+  samples: {},
+  sampling: [],
+}
+// 实物接线图仅消费从资源快照派生的只读视图，不作为设备协议模型。
+export type PinMode = 'idle' | 'input' | 'output' | 'pwm' | 'adc' | 'timer' | 'fault'
+export interface Snapshot {
+  pins: { pin: number; mode: PinMode; level: number | null }[]
+  sessions: { active: boolean }[]
 }
 export interface Sample {
+  instance: number
+  sequence: number
   pin: number
   raw: number
   millivolts: number | null
   calibrated: boolean
   uptime_ms: number
 }
-export interface Snapshot {
-  revision: number
-  uptime_ms: number
-  ble_connected: boolean
-  usb_active: boolean
-  pins: Pin[]
-  pwm: Pwm[]
-  timers: Timer[]
-  streams: { pin: number; interval_ms: number }[]
-}
-export interface Hello {
-  name: string
-  board: string
-  firmware: string
-  device_id: string
-  protocol: number
-  state: Snapshot
-  capabilities: {
-    features: string[]
-    max_pwm: number
-    max_timers: number
-    status_led: number
-    demo_led: number
-    adc_max_mv: number
-    adc_calibrated: boolean
-  }
-}
-export type Message = {
-  v: number
-  id?: number
-  ok?: boolean
-  result?: unknown
-  error?: { code: string; message: string }
-  event?: string
-  data?: Sample
-}
 export const PIN_NUMBERS = [0, 1, 3, 4, 5, 6, 7, 10, 13, 20, 21]
-
-export interface Transport {
-  connect(onData: (text: string) => void, onClose: (reason?: string) => void): Promise<void>
-  write(data: Uint8Array): Promise<void>
-  disconnect(): Promise<void>
+export const terminal = (t: Operation) =>
+  ['completed', 'failed', 'cancelled', 'unknown'].includes(t.status)
+export const phaseNames: Record<string, string> = {
+  created: '准备提交',
+  submitted: '已提交',
+  accepted: '设备已受理',
+  completed: '操作完成',
+  failed: '失败',
+  cancelled: '已取消',
+  unknown: '结果待核实',
 }
-
-export class LineReader {
-  private buffer = ''
-  private dropping = false
-  constructor(
-    private readonly onLine: (line: string) => void,
-    private readonly max = 8192,
-  ) {}
-  push(text: string) {
-    for (const char of text) {
-      if (char === '\n') {
-        if (!this.dropping && this.buffer.trim()) this.onLine(this.buffer)
-        this.buffer = ''
-        this.dropping = false
-      } else if (!this.dropping) {
-        this.buffer += char
-        if (this.buffer.length > this.max) {
-          this.buffer = ''
-          this.dropping = true
-        }
+export const kindNames: Record<string, string> = {
+  gpio: 'GPIO',
+  pwm: 'PWM',
+  adc: 'ADC',
+  timer: '板载定时',
+  uart: 'UART 串口',
+  temperature: '片内温度',
+  'adc.continuous': '连续 ADC',
+  'i2c.master': 'I²C 主总线',
+  'i2c.device': 'I²C 子设备',
+  'i2c.slave': 'I²C 从机',
+  'spi.master': 'SPI 主总线',
+  'spi.device': 'SPI 子设备',
+  'spi.slave': 'SPI 从机',
+  twai: 'TWAI / 经典 CAN',
+  'rmt.tx': 'RMT 发射',
+  'rmt.rx': 'RMT 接收',
+  i2s: 'I²S',
+  sigma_delta: 'Sigma-Delta',
+}
+export const friendlyError = (e: unknown) => (e instanceof Error ? e.message : String(e))
+export function boardState(state: DeviceState): Snapshot {
+  return {
+    pins: PIN_NUMBERS.map((pin) => {
+      const r = state.snapshot?.resources.find((r) => r.pin_mask & (2 ** pin))
+      return {
+        pin,
+        mode: (r?.state === 'fault'
+          ? 'fault'
+          : r?.kind === 'gpio'
+            ? String((r.definition.config as Args)?.mode ?? 'input')
+            : (r?.kind ?? 'idle')) as PinMode,
+        level:
+          r?.kind === 'gpio'
+            ? typeof state.resource_values?.[r.id]?.level === 'number'
+              ? Number(state.resource_values[r.id].level)
+              : null
+            : null,
       }
+    }),
+    sessions: [{ active: state.status === 'ready' }],
+  }
+}
+export function decodeBinary(result: Args): Uint8Array {
+  const text = String(result.data ?? '')
+  const bytes = Uint8Array.from(atob(text), (c) => c.charCodeAt(0))
+  if (bytes.length !== result.length || btoa(String.fromCharCode(...bytes)) !== text)
+    throw new Error('二进制结果长度或 Base64 不符合契约。')
+  return bytes
+}
+export function adcSamples(result: Args, pin: number, instance: number): Sample[] {
+  const events = Array.isArray(result.events) ? result.events : []
+  return events.map((item) => {
+    const e = item as Args
+    const bytes = decodeBinary({ length: 8, data: e.data })
+    const view = new DataView(bytes.buffer)
+    const mv = view.getInt32(4, true)
+    return {
+      pin,
+      instance,
+      sequence: Number(e.sequence),
+      raw: view.getInt32(0, true),
+      millivolts: mv < 0 ? null : mv,
+      calibrated: mv >= 0,
+      uptime_ms: Number(e.uptime_ms ?? 0),
     }
+  })
+}
+export interface DeviceScope {
+  generation?: number
+  boot_id?: string
+}
+class WorkbenchAPI {
+  private scope: DeviceScope = {}
+  deviceScope() {
+    return { ...this.scope }
   }
-}
-
-export interface DeviceOption {
-  id: string
-  name: string
-}
-
-export async function discoverDevices(kind: LinkKind): Promise<DeviceOption[]> {
-  let response: Response
-  try {
-    response = await fetch(`/api/device/discover?kind=${kind}`)
-  } catch {
-    throw new Error('无法访问后端，请检查工作台服务是否正在运行。')
-  }
-  const result = await response.json()
-  if (!response.ok) throw new Error(result.detail ?? '后端设备搜索失败，请稍后重试。')
-  return result.devices as DeviceOption[]
-}
-
-export class BackendTransport implements Transport {
-  private socket?: WebSocket
-  private closing = false
-  constructor(
-    private readonly kind: LinkKind,
-    private readonly target: string,
-  ) {}
-  async connect(onData: (text: string) => void, onClose: (reason?: string) => void) {
-    const url = new URL('/api/device/connect', window.location.href)
-    url.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    url.searchParams.set('kind', this.kind)
-    url.searchParams.set('target', this.target)
-    const socket = new WebSocket(url)
-    this.socket = socket
-    await new Promise<void>((resolve, reject) => {
-      let connected = false
-      let failure = ''
-      const timer = setTimeout(() => {
-        reject(new Error('后端连接超时，请检查设备供电和后端服务后重试。'))
-        socket.close()
-      }, 25000)
-      socket.onmessage = (event) => {
-        const message = JSON.parse(event.data)
-        if (message.type === 'connected') {
-          connected = true
-          clearTimeout(timer)
-          resolve()
-        } else if (message.type === 'data') onData(message.data)
-        else if (message.type === 'error') {
-          failure = message.message
-          if (!connected) {
-            clearTimeout(timer)
-            reject(new Error(failure))
-          }
-          socket.close()
-        }
+  private token = ''
+  private initializing: Promise<string> | null = null
+  async session(): Promise<string> {
+    if (this.initializing) return this.initializing
+    this.initializing = (async () => {
+      this.token = sessionStorage.getItem('limivia-page') ?? ''
+      if (this.token) {
+        const response = await fetch('/api/device', { headers: { 'x-page-session': this.token } })
+        if (response.ok) return this.token
       }
-      socket.onerror = () => {
-        failure ||= '无法连接后端设备通道，请检查工作台服务后重试。'
-      }
-      socket.onclose = () => {
-        clearTimeout(timer)
-        if (!connected) reject(new Error(failure || '后端设备连接已关闭，请重新搜索并连接。'))
-        else if (!this.closing) onClose(failure || undefined)
-      }
-    })
-  }
-  async write(data: Uint8Array) {
-    if (this.socket?.readyState !== WebSocket.OPEN) throw new Error('后端设备连接已关闭')
-    this.socket.send(new TextDecoder().decode(data))
-  }
-  async disconnect() {
-    this.closing = true
-    this.socket?.close()
-    this.socket = undefined
-  }
-}
-
-const errors: Record<string, string> = {
-  protected_pin: '该引脚由 USB、Flash 或开发板启动功能保留，不能操纵。',
-  pin_busy: '引脚已被其他功能占用，请先释放引脚。',
-  capacity: '设备的可用通道已用完，请先停止一个任务。',
-  invalid_argument: '参数超出设备支持范围，请检查频率、时间与引脚。',
-  invalid_request: '设备无法识别请求格式，请检查协议版本。',
-  hardware_error: '硬件驱动未能完成操作，请刷新设备状态后重试。',
-  unknown_operation: '当前固件不支持此操作。',
-}
-export function friendlyError(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
-}
-
-export class DeviceClient {
-  private transport?: Transport
-  private pending?: {
-    id: number
-    resolve: (result: unknown) => void
-    reject: (err: Error) => void
-    timer: ReturnType<typeof setTimeout>
-  }
-  private sequence = 0
-  private generation = 0
-  private chain: Promise<unknown> = Promise.resolve()
-  onEvent: (message: Message) => void = () => {}
-  onLog: (direction: string, text: string) => void = () => {}
-  onClose: (reason?: string) => void = () => {}
-  setHandlers(handlers: {
-    onLog?: (direction: string, text: string) => void
-    onClose?: (reason?: string) => void
-    onEvent?: (message: Message) => void
-  }) {
-    this.onLog = handlers.onLog ?? (() => {})
-    this.onClose = handlers.onClose ?? (() => {})
-    this.onEvent = handlers.onEvent ?? (() => {})
-  }
-  get busy() {
-    return this.pending !== undefined
-  }
-  async connect(kind: LinkKind, target: string | Transport = ''): Promise<Hello> {
-    if (this.transport) throw new Error('请先断开当前设备')
-    const gen = ++this.generation
-    this.transport = typeof target === 'string' ? new BackendTransport(kind, target) : target
-    const parser = new LineReader((line) => {
-      if (gen === this.generation) this.receive(line)
-    })
+      const r = await fetch('/api/pages', { method: 'POST' })
+      if (!r.ok) throw new Error('无法建立工作台页面会话。')
+      this.token = (await r.json()).page_session
+      sessionStorage.setItem('limivia-page', this.token)
+      return this.token
+    })()
     try {
-      await this.transport.connect(
-        (text) => parser.push(text),
-        (reason) => {
-          if (gen !== this.generation) return
-          void this.disconnect()
-          this.onClose(reason)
-        },
-      )
-      const hello = await this.request<Hello>('hello')
-      if (hello.protocol !== 1 || hello.board !== 'luatos-esp32c3-usb' || !hello.state?.pins) {
-        throw new Error('设备固件或协议不兼容，请安装本工程的专用固件。')
-      }
-      return hello
-    } catch (error) {
-      await this.disconnect()
-      throw error
+      return await this.initializing
+    } finally {
+      this.initializing = null
     }
   }
-  private receive(line: string) {
-    let message: Message
+  async request<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
+    if (!this.token) await this.session()
+    const headers: Record<string, string> = { 'x-page-session': this.token }
+    if (body && !(body instanceof FormData)) headers['content-type'] = 'application/json'
+    let r: Response
     try {
-      message = JSON.parse(line) as Message
-    } catch {
-      this.onLog('设备', line.slice(0, 240))
-      return
-    }
-    if (!message || typeof message !== 'object' || message.v !== 1) return
-    if (message.event) {
-      this.onEvent(message)
-      return
-    }
-    if (!this.pending || this.pending.id !== message.id) return
-    clearTimeout(this.pending.timer)
-    if (message.ok === true) this.pending.resolve(message.result)
-    else
-      this.pending.reject(
-        new Error(errors[message.error?.code ?? ''] ?? message.error?.message ?? '设备拒绝操作'),
-      )
-    this.pending = undefined
-  }
-  request<T = Snapshot>(op: string, params: Record<string, unknown> = {}): Promise<T> {
-    const generation = this.generation
-    const task = this.chain.then(async () => {
-      if (!this.transport || generation !== this.generation)
-        throw new Error('设备已断开，请重新连接')
-      const id = ++this.sequence
-      const bytes = new TextEncoder().encode(JSON.stringify({ v: 1, id, op, params }) + '\n')
-      if (bytes.length > 1025) throw new Error('命令长度超出固件限制')
-      if (op !== 'state') this.onLog('发送', `${op} ${JSON.stringify(params)}`)
-      return new Promise<T>((resolve, reject) => {
-        const timer = setTimeout(() => {
-          if (this.pending?.id === id) this.pending = undefined
-          reject(new Error('设备响应超时；操作可能已执行，请刷新状态，不要直接重复提交。'))
-        }, 6000)
-        this.pending = { id, resolve: (value) => resolve(value as T), reject, timer }
-        this.transport!.write(bytes).catch((error) => {
-          if (this.pending?.id !== id) return
-          clearTimeout(timer)
-          this.pending = undefined
-          reject(error)
-        })
+      r = await fetch(path, {
+        method,
+        headers,
+        body:
+          body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
       })
-    })
-    this.chain = task.catch(() => {})
-    return task
-  }
-  async disconnect() {
-    ++this.generation
-    if (this.pending) {
-      clearTimeout(this.pending.timer)
-      this.pending.reject(new Error('连接已关闭，未完成请求已取消'))
-      this.pending = undefined
+    } catch {
+      throw new Error(
+        method === 'GET'
+          ? '后端读取失败，请检查服务连接。'
+          : '本次提交结果待核实，请恢复连接后查看操作记录，勿直接重发写操作。',
+      )
     }
-    const transport = this.transport
-    this.transport = undefined
-    await transport?.disconnect()
+    if (!r.ok) {
+      if (r.status === 401) {
+        this.token = ''
+        sessionStorage.removeItem('limivia-page')
+      }
+      let reason
+      try {
+        reason = (await r.json()).detail
+      } catch {
+        reason = r.statusText
+      }
+      throw new Error(
+        reason?.reason === 'wiring_conflict'
+          ? '方案版本冲突，另一页面已保存更新；本地修改已保留。'
+          : typeof reason === 'string'
+            ? reason
+            : JSON.stringify(reason),
+      )
+    }
+    return r.json()
   }
+  submit(op: string, args: Args = {}, takeover = false, scope: DeviceScope = this.scope) {
+    return this.request<Operation>('/api/device/operations', 'POST', {
+      op,
+      args,
+      takeover,
+      ...scope,
+    })
+  }
+  async wait(task: Operation): Promise<Operation> {
+    let current = task
+    while (!terminal(current)) {
+      await new Promise((r) => setTimeout(r, 150))
+      current = await this.request<Operation>('/api/operations/' + task.id)
+    }
+    if (current.status !== 'completed' || current.result_expired)
+      throw new Error(
+        [current.error?.reason, current.error?.message ?? '执行结果未确认或已过期，请先查询状态。']
+          .filter(Boolean)
+          .join(' · '),
+      )
+    return current
+  }
+  async run(op: string, args: Args = {}, scope: DeviceScope = this.scope) {
+    return this.wait(await this.submit(op, args, false, scope))
+  }
+  async upload(file: File, name: string, secret = false, profile?: string) {
+    const data = new FormData()
+    data.append('file', file)
+    const url =
+      profile === undefined
+        ? `/api/device/files/upload?name=${encodeURIComponent(name)}&secret=${secret}`
+        : `/api/device/ota/upload?profile=${encodeURIComponent(profile)}`
+    const scope = this.deviceScope()
+    const scoped =
+      scope.generation === undefined
+        ? url
+        : `${url}&generation=${scope.generation}&boot_id=${encodeURIComponent(scope.boot_id ?? '')}`
+    return this.request<Operation>(scoped, 'POST', data)
+  }
+  async download(name: string) {
+    if (!this.token) await this.session()
+    const r = await fetch(`/api/device/files/${encodeURIComponent(name)}/download`, {
+      headers: { 'x-page-session': this.token },
+    })
+    if (!r.ok) throw new Error('下载失败，请核对文件是否存在或属于秘密文件。')
+    saveBlob(await r.blob(), name)
+  }
+  subscribe(onFeed: (feed: Feed) => void, onConnection: (online: boolean) => void) {
+    let disposed = false
+    let socket: WebSocket | undefined
+    let timer: ReturnType<typeof setTimeout> | undefined
+    let ping: ReturnType<typeof setInterval> | undefined
+    const open = async () => {
+      try {
+        const page = await this.session()
+        if (disposed) return
+        socket = new WebSocket(
+          `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/api/device/events`,
+        )
+        socket.onopen = () => {
+          socket!.send(JSON.stringify({ page_session: page }))
+          onConnection(true)
+          ping = setInterval(() => {
+            if (socket?.readyState === 1) socket.send('ping')
+          }, 20000)
+        }
+        socket.onmessage = (e) => {
+          const feed = JSON.parse(e.data)
+          if (feed.type === 'snapshot' && feed.data.identity)
+            this.scope = { generation: feed.data.generation, boot_id: feed.data.identity.boot_id }
+          onFeed(feed)
+          if (feed.type === 'wiring.changed')
+            window.dispatchEvent(new CustomEvent('wiring-changed', { detail: feed.data }))
+          if (feed.type === 'snapshot')
+            window.dispatchEvent(
+              new CustomEvent('wiring-changed', {
+                detail: { ...feed.data.identity, revision: feed.data.wiring_revision },
+              }),
+            )
+        }
+        socket.onclose = () => {
+          clearInterval(ping)
+          onConnection(false)
+          if (!disposed) timer = setTimeout(open, 1500)
+        }
+      } catch {
+        onConnection(false)
+        if (!disposed) timer = setTimeout(open, 3000)
+      }
+    }
+    void open()
+    return () => {
+      disposed = true
+      clearTimeout(timer)
+      clearInterval(ping)
+      socket?.close()
+    }
+  }
+}
+export const api = new WorkbenchAPI()
+export function saveBlob(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = name
+  a.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+export const kindDescriptions: Record<string, string> = {
+  gpio: '方向、电平、上下拉与事件',
+  pwm: '占空比、渐变与周期呼吸',
+  adc: '单次与周期采样',
+  'adc.continuous': '带通道标签的连续采样',
+  uart: '文本与二进制收发',
+  'i2c.master': '总线配置、探测与扫描',
+  'i2c.device': '子设备地址与读写事务',
+  'i2c.slave': '从机预载、队列与事件',
+  'spi.master': '共享总线配置',
+  'spi.device': '片选、传输与结果',
+  'spi.slave': '从机事务队列',
+  twai: '经典 CAN 帧与错误',
+  'rmt.tx': '符号发射与同步',
+  'rmt.rx': '捕获与原始符号',
+  i2s: '音频/PDM 原始数据',
+  sigma_delta: '密度调制',
+  timer: '电平时序与有限/无限循环',
+  temperature: '片内温度采集',
+}
+export const actionNames: Record<string, string> = {
+  status: '读取状态',
+  read: '读取',
+  write: '写入',
+  events: '读取事件队列',
+  duty: '更新占空比',
+  fade: '渐变',
+  probe: '探测地址',
+  scan: '扫描总线',
+  recover: '恢复总线',
+  write_read: '写后读',
+  preload: '预载',
+  clear_tx: '清空发送',
+  transfer: '传输',
+  queue: '排入事务',
+  fetch: '取回结果',
+  send: '发送',
+  receive: '接收',
+  clear: '清空',
+  errors: '读取错误',
+  transmit: '发射',
+  capture: '捕获',
+  result: '取回捕获',
+  play: '播放',
+  record: '采集',
+  stop: '停止',
+  start: '启动',
+  drain: '排空',
+  abort: '中止',
+  density: '更新密度',
+  break: '发送 Break',
 }

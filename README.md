@@ -1,121 +1,93 @@
-# LIMIVIA（莉米维娅）
+# LIMIVIA 莉米维娅
 
-LIMIVIA 是一套以软件为核心、连接数字世界与物理世界的通用硬件操作与开发框架。它通过软件抽象和可视化交互，让具备软件或 AI 背景、缺乏硬件经验的人逐步理解并操纵真实设备。
+连接数字世界与物理世界的本机硬件实验工作台。浏览器访问同源 Python 后端，后端通过 **limivia 0.3.0a1 / JSON-RPC 2.0 / 业务协议 v3** 连接合宙 CORE ESP32-C3 简约版，支持 USB、BLE、WebSocket 和 MQTT。界面沿用 MANAS 工作台关系与苍渊·白垣 Token，默认白垣。
 
-首版支持 **合宙 CORE ESP32-C3 简约版（无串口芯片，外置 4MB Flash）**。网页通过同源 WebSocket 访问 **Python 后端管理的 BLE / USB 设备**，默认使用蓝牙。FastAPI 统一托管前端与设备通道，Poetry/Typer CLI 提供服务启动与环境检查。固件、构建、烧录及实机验证独立在 [limivia-esp32 仓库](../limivia-esp32/README.md)。
-
-## 灵感来源与致谢
-
-LIMIVIA 受到 [wave-del 同学的 esp32-audio-web 项目](https://github.com/wave-del/esp32-audio-web) 的启发。在本项目发起者的了解与交流范围内，wave-del 同学最早提出了类似思路，其项目为 LIMIVIA 的构思提供了最初的启发。感谢他对通过网页连接和操纵物理设备这一方向的探索。
-
-## 首版能力
-
-| 能力 | 支持内容 |
-|---|---|
-| USB / BLE | 后端扫描与连接、设备握手、状态同步、断线提示与重新连接 |
-| 板载 LED | D4 连接状态，D5 开关、PWM 调光及呼吸演示 |
-| GPIO | 输入、输出、上拉、下拉，真实电平读回与引脚占用 |
-| PWM / LEDC | 最多 4 路独立频率，5–40000Hz，占空比、呼吸周期、停止 |
-| ADC1 | GPIO0/1/3/4 单次或周期采集，原始值、校准电压、曲线与 CSV |
-| 本地定时 | 最多 4 个周期闪烁或单次脉冲任务，断线继续，重启清空 |
-
-首版不包含 SPI、I²C、I²S、Wi-Fi、复杂状态机或脚本 IDE。AI 通过统一命令与能力描述留出扩展点，目前不调用模型。
+设备契约必须为 `limivia-v3-jsonrpc2`；相同包版本或 protocol=3 本身不能证明兼容。旧 v1/v2、历史自定义 v3 不兼容。
 
 ## 安装与启动
 
-开发依赖：Python 3.10、Poetry、Node.js（建议本项目已验证的 24.x）和 pnpm。运行工作台无需 ESP-IDF 或固件仓库；`poetry install` 会安装 Bleak 蓝牙与 pySerial 串口依赖。
+开发环境使用 Python **3.12**、Poetry、项目内 `.venv`、Node.js 和 pnpm。
 
 ```bash
-poetry env use python3.10
+poetry env use python3.12
 poetry install
-pnpm --dir src/web install --frozen-lockfile
+pnpm --dir src/web install
 pnpm --dir src/web run build
-poetry run limivia serve
+# SDK 暂未发布本轮版本，按项目约定由 pip 单独安装已核验的本地 wheel。
+poetry run python -m pip install /实际路径/limivia-0.3.0a1-py3-none-any.whl
+poetry run python -m pip check
+poetry run limivia-server doctor
+poetry run limivia-server serve --port 8000
 ```
 
-打开 **http://127.0.0.1:8000**。标准运行只有一个后端服务，托管 `src/web/dist`；Vite dev 仅用于需要 HMR 的前端开发。前端未构建时服务会给出明确错误。
+默认监听 `0.0.0.0:8000`。本机打开 `http://127.0.0.1:8000`，其他机器使用服务主机的 IP 访问；可通过 `--host` 或 `LIMIVIA_HOST` 覆盖监听地址。后端统一托管 `src/web/dist`；不需要长期运行第二个前端服务。VS Code 后端调试仍会先执行前端构建。
+
+**SDK 按用户要求不写入 TOML、不由 Poetry 锁定，也不随仓库归档。** 先执行 Poetry 安装，再用 pip 安装 SDK。后续执行 `poetry install` 或 `poetry sync` 可能调整 SDK 所需的传递依赖，需再次执行 SDK 安装、pip check 和 doctor。doctor 显示实际版本、导入位置、契约与 pip 安装来源，不访问硬件。其他服务依赖继续使用 Poetry 和清华源。
+
+本次使用的 SDK 来自独立 limivia 仓库 `dev` 提交 `5149d0ecb72c665730573568fadcea110b94b8da`，已合入业务说明中的升级；wheel SHA256 为 `94a6978483144d5897896077a14dae6f62e25e3626728617f3ebf67caf2f9279`。这是本次验证来源记录，不是运行时相邻目录依赖。
+
+## 从连接到实验
+
+1. 点击“连接设备”。USB/BLE 先搜索并明确选择服务主机候选；WS 填写 `ws://板卡IP/v3`；MQTT 填写 mqtt/mqtts URL 和完整目标 MAC。可使用预期 MAC 核对身份。
+2. 连接后读取完整能力与一致状态，保持观察模式。设备工作台显示 profile、固件、协议和实际可用能力，完整 build/boot 在“固件详情”中查看。
+3. 在“设备工作台”找到已接线的物理位置，点击引脚并选择功能。单引脚自动带入；UART、I²C、SPI 等先选择当前引脚的角色，再通过板图或下拉框补齐整组接线。可命名接线组，记录备注与供电位置；这些是人工记录，不代表已检测到实物连接。
+4. “保存方案”只保存服务器上的接线意图。主动取得设备控制后，依次“检查本组”“应用本组”；预检不预留资源，应用时仍会再次检查。父总线需先应用，随后才能应用子设备。已有运行配置不会因编辑方案而自动替换。
+5. 等待设备确认后调试真实资源；结束时明确关闭并核实释放。fault 仍占用引脚和控制器；“重试关闭”不会重新打开资源，父总线级联关闭会明确提示影响整树。
+
+首页与外设调试已合并为 V5 板卡工作台：中央展示完整实物板图，侧栏展示接线组与未归组配置，右侧展示选择对象的配置和调试。板图常规高 480px，小窗口高 388px，窄屏重排为 288×388px，保留 13px 标签和 24px 引脚命中区。桌面默认完整显示板图，右栏身份及诊断入口固定，仅配置内容滚动；窄屏和放大时进入详情后可返回板卡。上方工具栏提供正反面、放大、引脚列表和说明。未确认板型不会套用本板映射。
+
+保护引脚的彩色焊盘带斜纹，板图下方统一显示电气类别和保护图例。仍可点击或用键盘选择，查看启动配置、Flash、系统灯或 USB 等具体保护原因；供电、接地、方案分配和普通资源占用不会因此显示保护纹理。正反面、放大图与两主题采用相同规则。
+
+已确认本板及 GPIO13 数字能力时，首次进入默认展开板载 D5 控制；之后保留用户明确选择。也可点击 D5 或 GPIO13 进入，可开关、呼吸演示、只读查询和关闭资源；D4 系统灯只读。GPIO13 绿色焊盘内有 LED 矢量符号，入场轻微呼吸三次，尊重“减少动态效果”设置；它用于定位，不表示真实输出。默认展开不会申请控制或写入设备。沿用最近确认输出与固定反馈区，普通快照刷新不会让全局文字闪烁。进行中任务数量在操作记录弹窗内查看。侧栏及浏览器标签页使用用户指定 Figma Logo 页的原始标志路径，字体随应用提供。
+
+每台设备一份共享接线方案，保存在服务器 `wiring.sqlite3`。多个页面可编辑方案，旧版本保存会提示冲突并保留本地修改，可载入服务器版本或导出本地副本。保存方案和刷新页面不会应用配置；资源关联仍需本次启动与实例匹配。接口见 [共享方案说明](docs/wiring-plan.md)，设计与验证见 [同步记录](docs/figma-ui-audit.md)。
+
+2026-10-24 的紧凑板图、合并图例和右侧功能家族已从 Figma 同步到应用，旧设计保留在历史归档。可用能力按电平与采样、通信、波形与定时分组；I²C、SPI、RMT 等多模式功能就地展开，每次只展开一个家族。内容来自当前设备实际能力；不可用功能及一致快照集中在诊断中按需查看。
+
+- **离线流程**：编辑执行图、资源声明、变量及十类步骤，校验后导出或上传 `.flow.json`，再加载和启动。暂停不清输出，流程完成仍可能占用资源；停止清理、移除加载项、删除文件是不同动作。默认手动启动。
+- **联网通信**：板上 Wi-Fi、MQTT、ESP-NOW 与服务主机控制传输分开配置。凭据仅写入，不回显或写入操作记录；MQTT queued 和 ESP-NOW MAC ACK 都不是远端应用确认。
+- **设备维护**：诊断、系统状态、低功耗、缓存、组操作、OTA 和明确确认的持久数据清理。OTA 上传到非活动槽，commit 默认不重启；上传成功不代表新固件已运行。需要重启时由用户显式执行，之后重新核对身份。
+
+连续 ADC、RMT、I²S 等结果保留长度、格式、序号及丢弃信息，可下载原始字节。没有真实数据时不绘制示例测量，不把连续 ADC 当 PCM，也不声称自动识别外接器件。
+
+## 多页面、停止与恢复
+
+后端一次管理一台设备，多个页面共享观察。控制页在线时其他页面不能写入；原页离线后，其他页需显式接管并重新确认控制权。页面刷新、关闭或实时通道恢复不会自动重放命令、停止实验或断开设备。
+
+“已提交”仅代表 SDK 本地入队，“设备已受理”代表设备创建作业；操作记录独立展示每项终态、驱动错误、未知结果及过期信息。取消请求完成不等于原作业已取消。超时、断线和 response_capacity 不自动重试写操作。
+
+“停止所有实验”影响所有来源并持久抑制自启，走独立通道。只有设备清理和持久化确认后才显示完成；失败保留错误与占用。仅“断开设备连接”不停止板上实验。
+
+任务保存在 SQLite，默认目录为 `$XDG_DATA_HOME/limivia-server`，未设置时使用 `~/.local/share/limivia-server`，保留最近 30 天、最多 10,000 条已结束记录。服务重启将未确认任务标记为未知，不自动连接或申请控制；已知 job 可在同设备同 boot 下显式查询，新 boot 的旧句柄不可复用。
 
 ```bash
-poetry run limivia doctor
-poetry run python -m limivia.commands.app serve --port 8000
+poetry run limivia-server serve --data-dir ./data-bin/workbench --job-timeout 300
 ```
 
-可用 `poetry run python --version` 核对实际解释器。若本机 Poetry 创建的环境版本不符，移除本项目的错误虚拟环境后，执行 `python3.10 -m venv .venv`、`poetry env use .venv/bin/python`、`poetry install`；本次已采用项目内 `.venv` 并确认 Python 3.10.20。
+对应环境变量为 `LIMIVIA_HOST`、`LIMIVIA_PORT`、`LIMIVIA_DATA_DIR`、`LIMIVIA_JOB_TIMEOUT`。作业跟踪超时不是设备取消。设备管理使用单进程、单 worker；本机数据目录通过进程锁协调。当前没有远程账户系统，按本机工作台部署。
 
-可通过 `LIMIVIA_HOST`、`LIMIVIA_PORT` 设置监听地址与端口。默认仅监听本机。VS Code 选择“LIMIVIA 后端”调试，`web: build` 会先通过 `web: install` 执行 `pnpm install --frozen-lockfile` 准备前端依赖，再构建前端；安装或构建失败时不会启动后端。首次安装依赖需要访问包源，锁文件与依赖声明不一致时需先手动更新并检查锁文件。所有调试配置读取 `.env`，可从 `.env.example` 复制。终端 CLI 读取当前 shell 环境变量。
+## 板卡与工程边界
 
-## 连接与第一次实验
+板卡使用 3.3V 逻辑，外设共地。GPIO13 接板载 D5 LED；原生 USB、Flash 和保护脚以本次能力发现及设备预检为准。GPIO0/1/3/4 的数字与 ADC 互斥不等于永久禁用数字用途。
 
-1. 确认开发板已安装本工程专用固件并供电；蓝牙连接需在后端电脑附近，USB 连接需将数据线插入后端电脑。
-2. 网页默认选择“BLE 蓝牙”，点击“搜索设备”；选择目标后点击“连接设备”。使用 USB 时先切换“USB 串口”再搜索。搜索只找到一个设备时会自动选中，仍需手动连接。
-3. 等待“设备已就绪”，进入“板载 LED”，点击“点亮 LED”或“熄灭”。
-4. 点击“释放引脚”后可启动“呼吸演示”。不同功能互斥占用引脚，界面显示当前占用。
-5. 完成实验后可点击“停止全部输出”。仅断开浏览器不会停止板上 PWM、ADC 或本地任务；持续供电时任务继续运行，重连可读取和停止。
+“引脚与占用”保留 32 个实物排针、正反面和键盘放大查看；点击板图只观察，不发送设备命令。供电脚不能作为 GPIO 电压容限依据。
 
-USB 与 BLE 都由 **运行 Python 后端的那台电脑**管理。浏览器通过同源 WebSocket 转发协议帧与设备事件，无需浏览器蓝牙、串口 API 或实验特性。浏览器所在电脑的 USB 与蓝牙不会被使用。网页关闭、网络中断或主动断开会释放后端连接；持续供电的板上任务仍会继续，重新连接会读取当前状态。
-
-后端同一时刻只允许一个页面占用设备连接，切换连接方式前先断开；其他页面会收到占用提示。设备扫描只展示匹配 BLE 服务或 Espressif USB VID/PID 的候选，最终以 `hello` 握手确认板型和协议。命令超时不自动重发，先重连或刷新状态确认是否已执行。运行工作台时保持单个后端进程、单个 Uvicorn worker，避免多个进程竞争设备。
-
-### 后端蓝牙与串口环境
-
-- BLE 使用 [Bleak](https://bleak.readthedocs.io/en/latest/)，后端电脑必须有可用且已开启的蓝牙适配器；Linux 需要 BlueZ 与可访问的系统 D-Bus。Windows/macOS 需允许运行 Python 的终端或应用访问蓝牙。
-- USB 使用 [pySerial](https://pyserial.readthedocs.io/en/stable/pyserial_api.html)，Linux 后端用户需要串口权限（通常为 `dialout` 或发行版对应组）；关闭占用串口的监视器或烧录程序。
-- 若后端运行在 WSL、容器、虚拟机或远程主机中，USB 和蓝牙必须对该运行环境可见；仅转发网页端口不会转发硬件。搜索失败时页面会给出后端环境提示，空列表则检查供电、距离与连接。
-- 默认使用本机 `http://127.0.0.1:8000`。WebSocket 校验同源 Origin。当前没有远程用户鉴权，不应将设备控制服务直接暴露到公共网络。
-
-## 固件仓库
-
-ESP32 固件及配套工具已迁至独立仓库 **limivia-esp32**，本机目录为 `../limivia-esp32`。构建、烧录与固件实机验证请在该仓库执行，安装步骤见其 [README](../limivia-esp32/README.md)。工作台仍通过协议 v1 连接已安装专用固件的设备；没有网页烧录器或自动下载固件功能。
-
-原 CLI 命令已迁移：
-
-| 原命令（已移除） | 在固件仓库运行 |
-|---|---|
-| `limivia firmware build` | `poetry run limivia-esp32 build` |
-| `limivia firmware flash --port …` | `poetry run limivia-esp32 flash --port …` |
-| `limivia firmware verify --port …` | `poetry run limivia-esp32 verify --port …` |
-
-两仓库可以分别检出，运行或构建均不要求互相存在。协议真源在本仓库 `docs/protocol.md`，固件仓库保留注明来源提交的协议快照。更改协议时需协调两端；连接时用 `hello.protocol` 检查兼容性，固件版本独立演进。
-
-## 引脚与接线
-
-- 实验引脚：GPIO0、1、3、4、5、6、7、10、13、20、21。
-- D4 / GPIO12 为系统状态 LED；D5 / GPIO13 为实验 LED，高电平有效。
-- GPIO18/19 是原生 USB；GPIO14–17 为 Flash；GPIO2/8/9 为启动绑带相关；GPIO11 涉及 Flash 电压配置。上述保留脚不能用于首版实验，不写 eFuse。
-- GPIO 使用 **3.3V 逻辑**；ADC 测量输入使用 **0–2.5V**，不能把 5V 供电脚接入 GPIO/ADC。外部设备需共地，电机等负载应使用相应驱动电路。
-- 设备视图对应简约版实物的 32 个引脚（左右各 16 个），默认元件正面、天线上、USB 下。切换背面仅交换左右；放大接线图支持窄屏滚动和 Escape 关闭。
-- 接线配色：5V 红、GND 黑、3.3V 黄、ADC 能力脚 GPIO0–5 蓝、其余数字信号绿；NC、EN、PWB 为中性灰。颜色表示硬件能力，不表示当前固件已开放：GPIO2 受保护，GPIO5 的 ADC2 当前未启用；PWM 不是真正的 DAC 模拟输出。
-- 点击引脚只查看功能及限制，不发送命令；实线外框与下划线标出当前实验目标。图中引脚位置一一对应，元件轮廓经过简化，接线时按所选正反面核对丝印。
-- 固件只适配确认过的外置 Flash 板型；带内置 Flash 的变体不能照用 GPIO12/13 映射。
-
-板卡和芯片资料沉淀在工程专用 [limivia-esp32c3 skill](.agents/skills/limivia-esp32c3/SKILL.md)，通过 [AGENTS.md](AGENTS.md) 引导使用，不安装到用户全局目录。
+SDK、ESP-IDF 固件及烧录工具各自独立维护。服务运行不依赖其检出位置。本轮没有修改、构建、烧录固件，也没有执行 OTA 激活。当前集成协议及冻结来源见 [协议](docs/protocol.md)，SDK 桥接和接口见 [后端模型](docs/backend-control.md)，旧客户端迁移见 [迁移说明](docs/migration-v3.md)。
 
 ## 验证
 
 ```bash
-pnpm --dir src/web run build
-poetry run pytest -q
-poetry run ruff check src/limivia tests
+poetry run pytest
+poetry run ruff check src/limivia_server tests
 pnpm --dir src/web run lint
 pnpm --dir src/web test
+pnpm --dir src/web run build
 pnpm --dir src/web exec playwright install chromium
 pnpm --dir src/web run test:e2e
 ```
 
-实机验证工具与硬件测试记录已迁至固件仓库，使用方式见其 README。
+E2E 在 `127.0.0.1:18000` 启动隔离测试服务，真实 server 和 SDK 连接 tests 中的模拟设备，结束后关闭服务并删除临时任务数据库。测试专用接口不会出现在正常应用中。实机、无线互通及仪器测量不由模拟结果替代，证据范围见 [验证记录](docs/verification.md)。
 
-本次真实执行结果与环境限制见 [验证记录](docs/verification.md)。浏览器 E2E 的设备控制测试使用隔离的后端响应模拟；后端适配器测试使用可控的模拟传输，模拟代码仅在测试目录中，不进入应用构建。
+2026-10-24 已补充无头 Chromium → 正式后端 → SDK → USB 实机验证，当前 bus 镜像通过连接、LED/PWM、文件读回、短流程及全局停止闭环。实测发现并修复了扫描与连接使用不同 SDK 实例、丢失扫描候选缓存的问题；BLE 本轮不测试。
 
-## 工程结构与扩展
-
-```text
-src/limivia/       FastAPI 托管、后端 USB/BLE 传输、工作台 Typer CLI
-src/web/          React 工作台、WebSocket 客户端、前端测试
-.agents/skills/   仅本工程使用的板卡与芯片知识
-```
-
-协议真源见 [设备协议](docs/protocol.md)，页面状态与交互约定见 [界面契约](docs/ui-state.md)。未来新增硬件能力时，协调对应固件仓库的校验与能力描述，并更新本仓库前端控件和协议测试。白垣视觉 Token 来源于苍渊·白垣 v1.1，MANAS 负责工作台关系与交互。
-
-## 开源协议
-
-本仓库采用 **GNU Affero General Public License v3.0（AGPL-3.0-only）**，完整条款见 [LICENSE](LICENSE)。第三方依赖与另有许可声明的内容保留各自的许可证。
+源码目录：`src/limivia_server` 为 FastAPI、设备管理、任务与 Typer CLI；`src/web` 为 React/TypeScript/Vite 前端；`.agents/skills` 为本工程板卡资料。开源协议为 [AGPL-3.0-only](LICENSE)。
