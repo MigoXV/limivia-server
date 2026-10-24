@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { reset, connect, acquire } from './helpers'
+import { reset, connect, acquire, selectLed } from './helpers'
 
 test.beforeEach(async ({ page }) => {
   await reset(page)
   await connect(page)
+  await selectLed(page)
 })
 
 test('首页 LED 开关、只读观察、呼吸切换和详情共享设备状态', async ({ page }) => {
@@ -37,8 +38,11 @@ test('首页 LED 开关、只读观察、呼吸切换和详情共享设备状态
   await expect(led.getByRole('heading', { name: '呼吸运行中', exact: true })).toBeVisible()
   await led.getByRole('button', { name: '读取状态', exact: true }).click()
   await expect(led.getByRole('heading', { name: '呼吸运行中', exact: true })).toBeVisible()
-  await led.getByRole('button', { name: '打开 LED 详情', exact: true }).click()
-  await expect(page.getByRole('heading', { name: '板载 LED', level: 2 })).toBeVisible()
+  await page
+    .getByRole('navigation')
+    .getByRole('button', { name: '设备工作台', exact: true })
+    .click()
+  await expect(page.getByRole('heading', { name: '板载 LED · D5', level: 2 })).toBeVisible()
   await expect(led.getByRole('heading', { name: '呼吸运行中', exact: true })).toBeVisible()
   await led.getByRole('button', { name: '关闭 LED 资源', exact: true }).click()
   await expect(led.getByRole('heading', { name: '未创建 LED 资源', exact: true })).toBeVisible()
@@ -57,31 +61,25 @@ for (const width of [1280, 1440])
       'font-weight',
       '500',
     )
-    await expect(nav.getByRole('button', { name: '外设调试', exact: true })).toHaveCSS(
-      'font-weight',
-      '400',
-    )
+    await expect(nav.getByRole('button', { name: '外设调试', exact: true })).toHaveCount(0)
     const metrics = await page.evaluate(() =>
       Object.fromEntries(
-        [
-          '.sidebar',
-          '.sidebar-navigation .nav-item',
-          '.summary-band',
-          '.home-led',
-          '.home-capabilities > aside',
-        ].map((selector) => {
+        ['.sidebar', '.board-stage', '.board-inspector', '.home-led'].map((selector) => {
           const r = document.querySelector(selector)!.getBoundingClientRect()
           return [selector, { x: r.x, y: r.y, width: r.width, height: r.height }]
         }),
       ),
     )
     expect(metrics['.sidebar'].width).toBe(240)
-    expect(metrics['.sidebar-navigation .nav-item'].y).toBe(155)
-    expect(metrics['.summary-band'].y).toBe(116)
-    expect(metrics['.summary-band'].height).toBe(64)
-    expect(metrics['.home-led'].y).toBe(196)
-    expect(metrics['.home-led'].height).toBe(244)
-    expect(metrics['.home-capabilities > aside'].width).toBe(256)
+    for (const logo of await page.locator('.brand-mark:visible').all()) {
+      await expect(logo).toHaveJSProperty('naturalWidth', 32)
+      const box = await logo.boundingBox()
+      expect(box?.width).toBe(32)
+      expect(box?.height).toBe(32)
+    }
+    expect(metrics['.board-stage'].width).toBeGreaterThanOrEqual(360)
+    expect(metrics['.board-inspector'].width).toBe(400)
+    expect(metrics['.home-led'].width).toBeLessThanOrEqual(400)
     const cdp = await page.context().newCDPSession(page)
     await cdp.send('DOM.enable')
     await cdp.send('CSS.enable')
@@ -112,6 +110,7 @@ test('其他页面创建的 LED 资源只读，取得控制后也不能直接覆
   await expect(page.locator('.control-status')).toHaveText('观察模式')
   const observer = await context.newPage()
   await observer.goto('/')
+  await selectLed(observer)
   await expect(observer.getByRole('heading', { name: '其他来源占用', exact: true })).toBeVisible()
   await acquire(observer)
   await expect(observer.getByRole('button', { name: /^(点亮|熄灭) LED$/ })).toBeDisabled()

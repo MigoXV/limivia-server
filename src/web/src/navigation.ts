@@ -1,6 +1,6 @@
 import type { DeviceState } from './device'
 
-export type Section = 'home' | 'peripherals' | 'flow' | 'network' | 'files' | 'maintenance'
+export type Section = 'home' | 'flow' | 'network' | 'files' | 'maintenance'
 
 export function navigationReason(section: Section, state: DeviceState): string {
   if (section === 'home') return ''
@@ -9,24 +9,12 @@ export function navigationReason(section: Section, state: DeviceState): string {
   const supports = (...groups: string[]) =>
     operations.some((operation) => groups.includes(operation.op.split('.')[0]))
   const available =
-    section === 'peripherals'
-      ? state.discovery.resources.some((resource) => resource.available)
-      : section === 'flow'
-        ? supports('flow')
-        : section === 'files'
-          ? supports('storage')
-          : section === 'network'
-            ? supports('wifi', 'mqtt', 'espnow')
-            : supports(
-                'system',
-                'power',
-                'ota',
-                'diagnostics',
-                'buffer',
-                'gpio',
-                'rmt',
-                'job',
-                'mux',
-              )
+    section === 'flow'
+      ? supports('flow')
+      : section === 'files'
+        ? supports('storage')
+        : section === 'network'
+          ? supports('wifi', 'mqtt', 'espnow')
+          : supports('system', 'power', 'ota', 'diagnostics', 'buffer', 'gpio', 'rmt', 'job', 'mux')
   return available ? '' : '未提供'
 }

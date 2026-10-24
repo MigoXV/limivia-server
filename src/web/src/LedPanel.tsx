@@ -15,11 +15,13 @@ export function LedPanel({
   enabled,
   online,
   onDetails,
+  embedded = false,
 }: {
   state: DeviceState
   enabled: boolean
   online: boolean
   onDetails?: () => void
+  embedded?: boolean
 }) {
   const r = state.snapshot?.resources.find((resource) => resource.pin_mask & (2 ** 13))
   const config = r?.definition.config as Args | undefined
@@ -148,37 +150,41 @@ export function LedPanel({
     )
   return (
     <section
-      className={`home-led ${mode === 'breath' ? 'breath-mode' : ''}`}
+      className={`home-led ${mode === 'breath' ? 'breath-mode' : ''} ${embedded ? 'embedded-led' : ''}`}
       aria-label="板载 LED 快捷控制"
     >
-      <div className="home-led-heading">
-        <div>
-          <h2>板载 LED</h2>
-          <span>D5 · GPIO13 · 无需外部接线</span>
-        </div>
-        <small>输出示意 · 非物理测量</small>
-      </div>
-      <div className="home-led-body">
-        <div className="led-board-location">
-          <div
-            className="led-board-crop"
-            role="img"
-            aria-label="开发板正面 USB 左侧为 D5 实验灯，右侧 D4 为系统状态灯"
-          >
-            <img className="led-board-image theme-light" src={boardLight} alt="" />
-            <img className="led-board-image theme-dark" src={boardDark} alt="" />
-            <img className="led-board-target theme-light" src={targetLight} alt="" />
-            <img className="led-board-target theme-dark" src={targetDark} alt="" />
-            <span className="board-label-d5">D5</span>
-            <span className="board-label-d4">D4</span>
-            <span className="board-label-usb">USB</span>
+      {!embedded && (
+        <div className="home-led-heading">
+          <div>
+            <h2>板载 LED</h2>
+            <span>D5 · GPIO13 · 无需外部接线</span>
           </div>
-          <small>
-            正面 USB 左侧为 D5 实验灯
-            <br />
-            D4 · GPIO12 为系统状态灯（只读）
-          </small>
+          <small>输出示意 · 非物理测量</small>
         </div>
+      )}
+      <div className="home-led-body">
+        {!embedded && (
+          <div className="led-board-location">
+            <div
+              className="led-board-crop"
+              role="img"
+              aria-label="开发板正面 USB 左侧为 D5 实验灯，右侧 D4 为系统状态灯"
+            >
+              <img className="led-board-image theme-light" src={boardLight} alt="" />
+              <img className="led-board-image theme-dark" src={boardDark} alt="" />
+              <img className="led-board-target theme-light" src={targetLight} alt="" />
+              <img className="led-board-target theme-dark" src={targetDark} alt="" />
+              <span className="board-label-d5">D5</span>
+              <span className="board-label-d4">D4</span>
+              <span className="board-label-usb">USB</span>
+            </div>
+            <small>
+              正面 USB 左侧为 D5 实验灯
+              <br />
+              D4 · GPIO12 为系统状态灯（只读）
+            </small>
+          </div>
+        )}
         <div className="led-output-state">
           <LedIndicator
             state={
@@ -309,14 +315,14 @@ export function LedPanel({
                 : syncing
                   ? '正在同步设备状态，旧信息仅供参考。'
                   : occupied
-                    ? 'GPIO13 已被占用，请在外设调试中核对来源。'
+                    ? 'GPIO13 已被占用，请从左侧配置核对来源。'
                     : feedback ||
                       (!enabled
                         ? '观察模式 · 取得设备控制后可操作 LED。'
                         : '输出以设备确认结果为准；断开页面不会停止输出。')}
           </div>
           <div className="led-links">
-            {!enabled && fresh && <ControlAction state={state} />}
+            {!embedded && !enabled && fresh && <ControlAction state={state} />}
             {onDetails && (
               <button className="text-button" aria-label="打开 LED 详情" onClick={onDetails}>
                 详细调试 →
@@ -325,6 +331,7 @@ export function LedPanel({
           </div>
         </div>
       </div>
+      {embedded && <small className="led-output-note">输出示意 · 非物理测量</small>}
     </section>
   )
 }

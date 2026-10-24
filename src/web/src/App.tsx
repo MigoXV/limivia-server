@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react'
-import { LedPanel } from './LedPanel'
 import { ControlAction } from './ControlAction'
 import { Board } from './Board'
 import { Dialog } from './WorkbenchUI'
 import { Action, Result } from './Forms'
 import { Sidebar } from './Sidebar'
-import { navigationReason, type Section } from './navigation'
-import { ResourcePanel } from './ResourcePanel'
-import type { ResourceView } from './peripherals'
+import { type Section } from './navigation'
+import { BoardWorkspace } from './BoardWorkspace'
+import { useWiring } from './useWiring'
+import { initialBoardSelection, type BoardSelection } from './wiring'
 import { OperationsPanel, FilesPanel, NetworkPanel } from './OperationsPanel'
 import { FlowPanel } from './FlowPanel'
 import { useWorkbench } from './useWorkbench'
 import {
   api,
   boardState,
-  kindNames,
-  kindDescriptions,
   phaseNames,
   type CatalogItem,
   type DeviceState,
@@ -33,10 +31,11 @@ export default function App() {
   const workbench = useWorkbench()
   const { state, tasks, enabled, online } = workbench
   const [section, setSection] = useState<Section>('home')
-  const [resourceNavigation, setResourceNavigation] = useState<{
+  const [selectionState, setSelectionState] = useState<{
     key: string
-    view: ResourceView | null
+    value: BoardSelection
   } | null>(null)
+  const wiring = useWiring(state)
   const [overlay, setOverlay] = useState('')
   const [catalog, setCatalog] = useState<CatalogItem[]>([])
   const [selected, setSelected] = useState<Operation | null>(null)
@@ -67,12 +66,10 @@ export default function App() {
     }
   }, [identityKey, state.generation])
   const deviceKey = `${state.generation}:${identityKey}`
-  const resourceView = resourceNavigation?.key === deviceKey ? resourceNavigation.view : null
-  const changeResourceView = (view: ResourceView | null) =>
-    setResourceNavigation({ key: deviceKey, view })
+  const selection =
+    selectionState?.key === deviceKey ? selectionState.value : initialBoardSelection(state)
+  const setSelection = (value: BoardSelection) => setSelectionState({ key: deviceKey, value })
   const navigate = (next: Section) => {
-    if (next === section) return
-    changeResourceView(null)
     setSection(next)
   }
   const task = selected ? (tasks.find((t) => t.id === selected.id) ?? selected) : null
@@ -91,10 +88,14 @@ export default function App() {
         <Sidebar
           state={state}
           section={section}
-          view={resourceView}
+          selection={selection}
+          wiring={wiring}
           theme={theme}
           onNavigate={navigate}
-          onViewChange={changeResourceView}
+          onSelect={(value) => {
+            setSelection(value)
+            setSection('home')
+          }}
           onConnect={() => setOverlay('connect')}
           onFirmware={() => setOverlay('identity')}
           onBoard={() => setOverlay('board')}
@@ -124,17 +125,7 @@ export default function App() {
               </button>
             )}
           </header>
-          <main
-            id="main"
-            className={
-              section === 'home'
-                ? 'home-main'
-                : section === 'peripherals'
-                  ? 'peripherals-main'
-                  : undefined
-            }
-            tabIndex={-1}
-          >
+          <main id="main" className={section === 'home' ? 'board-main' : undefined} tabIndex={-1}>
             {(!online ||
               state.error ||
               (state.status !== 'ready' && state.stale && state.identity)) && (
@@ -155,128 +146,15 @@ export default function App() {
             )}
             {workbench.error && <p role="alert">{workbench.error}</p>}
             {section === 'home' && (
-              <>
-                <div className="page-heading">
-                  <h1>设备工作台</h1>
-                  <Action
-                    disabled={!state.identity}
-                    run={() => api.request('/api/device/refresh', 'POST')}
-                  >
-                    重新读取能力
-                  </Action>
-                </div>
-                {state.identity ? (
-                  <>
-                    <div className="summary-band">
-                      <div>
-                        <p>当前固件提供的能力与资源</p>
-                        <small>
-                          已识别固件 · {state.identity.contract} ·{' '}
-                          {state.discovery ? '固件能力已读取' : '能力识别中'}
-                        </small>
-                      </div>
-                      <div>
-                        <button
-                          disabled={!!navigationReason('peripherals', state)}
-                          onClick={() => navigate('peripherals')}
-                        >
-                          打开外设目录
-                        </button>
-                      </div>
-                    </div>
-                    <LedPanel
-                      key={deviceKey}
-                      state={state}
-                      enabled={enabled}
-                      online={online}
-                      onDetails={() => {
-                        changeResourceView({ type: 'led' })
-                        setSection('peripherals')
-                      }}
-                    />
-                    <div className="split home-capabilities">
-                      <section tabIndex={0} aria-label="当前固件提供的功能">
-                        <h2>当前固件提供的功能</h2>
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>功能</th>
-                              <th>支持内容</th>
-                              <th>状态</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {state.discovery?.resources
-                              .filter((c) => c.available)
-                              .map((c) => (
-                                <tr key={c.kind}>
-                                  <th scope="row">{kindNames[c.kind] ?? c.kind}</th>
-                                  <td>
-                                    {kindDescriptions[c.kind] ??
-                                      c.actions.map((a) => a.action).join('、') ??
-                                      '配置与状态'}
-                                  </td>
-                                  <td>
-                                    {c.available ? '支持 · 容量 ' + c.capacity : '当前镜像不提供'}
-                                  </td>
-                                </tr>
-                              ))}
-                          </tbody>
-                        </table>
-                        <p className="muted">
-                          仅显示本次发现的能力；引脚与资源占用会在操作前再次检查。
-                        </p>
-                      </section>
-                      <aside className="session-panel" aria-label="会话与协议">
-                        <h2>会话与协议</h2>
-                        <dl>
-                          <dt>协议状态</dt>
-                          <dd>
-                            {state.status === 'ready' && !!state.discovery
-                              ? '兼容 · 已验证'
-                              : '状态待核实'}
-                          </dd>
-                        </dl>
-                        <h3>设备控制</h3>
-                        <p>
-                          {state.control.mine && state.control.held
-                            ? '当前连接持有控制权'
-                            : control}
-                        </p>
-                        <small>释放控制不会停止已经运行的输出。</small>
-                        <ControlAction state={state} />
-                        <button className="text-button" onClick={() => setOverlay('identity')}>
-                          查看完整固件身份
-                        </button>
-                      </aside>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="empty-state">
-                      <h2>连接服务主机可访问的设备</h2>
-                      <p>
-                        从 USB / BLE 选择设备，或填写 WS / MQTT
-                        目标。连接后先读取能力，保持观察模式。
-                      </p>
-                      <button className="primary" onClick={() => setOverlay('connect')}>
-                        连接设备
-                      </button>
-                      <p>浏览器通过后端访问板卡；设备与串口位于服务主机。</p>
-                    </div>
-                    <LedPanel key={deviceKey} state={state} enabled={enabled} online={online} />
-                  </>
-                )}
-              </>
-            )}
-            {section === 'peripherals' && (
-              <ResourcePanel
+              <BoardWorkspace
                 key={deviceKey}
                 state={state}
                 enabled={enabled}
                 online={online}
-                view={resourceView}
-                onViewChange={changeResourceView}
+                wiring={wiring}
+                selection={selection}
+                onSelect={setSelection}
+                onConnect={() => setOverlay('connect')}
               />
             )}
             {section === 'flow' && <FlowPanel key={deviceKey} state={state} enabled={enabled} />}

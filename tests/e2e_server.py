@@ -24,6 +24,10 @@ def main():
             service.tasks.clear()
             service.store.db.execute("DELETE FROM operations")
             service.store.db.commit()
+            service.wiring.db.execute("DELETE FROM plans")
+            service.wiring.db.execute("DELETE FROM bindings")
+            service.wiring.db.commit()
+            service.wiring_checked = None
             service.state.update(identity=None, discovery=None, snapshot=None, error=None)
             service.changed()
             return {"reset": True}

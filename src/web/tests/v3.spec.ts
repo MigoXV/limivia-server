@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { reset, connect, acquire, openResource } from './helpers'
+import { reset, connect, acquire, openResource, selectLed, saveAndCheck } from './helpers'
 test.beforeEach(async ({ page }) => reset(page))
 test('观察连接不抢控制，刷新后共享后端连接', async ({ page }) => {
   await connect(page)
@@ -16,25 +16,21 @@ test('PWM 创建、操作和明确清理', async ({ page }) => {
   await acquire(page)
   await openResource(page, 'PWM')
   await page.getByRole('combobox', { name: '引脚 *', exact: true }).selectOption('4')
-  await expect(page.getByRole('button', { name: '创建PWM', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: '检查引脚与资源', exact: true }).click()
-  await expect(page.getByText('当前预检通过；资源尚未预留。')).toBeVisible()
-  await page.getByRole('button', { name: '创建PWM', exact: true }).click()
+  await expect(page.getByRole('button', { name: '应用本组', exact: true })).toBeDisabled()
+  await saveAndCheck(page)
+  await page.getByRole('button', { name: '应用本组', exact: true }).click()
   await expect(page.getByRole('heading', { name: /#\d+ · PWM/ })).toBeVisible()
   await page.getByLabel('资源操作').selectOption('duty')
   await page.getByLabel('占空比（%） *').fill('25')
   await page.getByRole('button', { name: '执行操作', exact: true }).click()
   page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: '关闭资源', exact: true }).click()
-  await expect(
-    page.getByRole('heading', { name: '该资源已释放或已更换实例', exact: true }),
-  ).toBeVisible()
+  await expect(page.getByText('尚未应用 · 检查通过后才能配置设备。', { exact: true })).toBeVisible()
 })
 test('LED 只根据读回电平展示状态', async ({ page }) => {
   await connect(page)
   await acquire(page)
-  await page.getByRole('navigation').getByRole('button', { name: '外设调试', exact: true }).click()
-  await page.getByRole('button', { name: '板载 LED', exact: true }).click()
+  await selectLed(page)
   await page.getByRole('button', { name: '点亮 LED', exact: true }).click()
   await expect(page.getByRole('heading', { name: '已点亮', exact: true })).toBeVisible()
   await page.getByRole('button', { name: '熄灭 LED', exact: true }).click()
@@ -45,8 +41,8 @@ test('故障关闭保留占用，recover 重试关闭', async ({ page }) => {
   await acquire(page)
   await openResource(page, 'GPIO')
   await page.getByRole('combobox', { name: '引脚 *', exact: true }).selectOption('0')
-  await page.getByRole('button', { name: '检查引脚与资源', exact: true }).click()
-  await page.getByRole('button', { name: '创建GPIO', exact: true }).click()
+  await saveAndCheck(page)
+  await page.getByRole('button', { name: '应用本组', exact: true }).click()
   await expect(page.getByRole('heading', { name: /#\d+ · GPIO/ })).toBeVisible()
   await page.request.post('/api/testing/configure', { data: { cleanup_fault: true } })
   page.once('dialog', (dialog) => dialog.accept())
@@ -55,9 +51,7 @@ test('故障关闭保留占用，recover 重试关闭', async ({ page }) => {
   await page.request.post('/api/testing/configure', { data: { cleanup_fault: false } })
   page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: '重试关闭', exact: true }).click()
-  await expect(
-    page.getByRole('heading', { name: '该资源已释放或已更换实例', exact: true }),
-  ).toBeVisible()
+  await expect(page.getByText('尚未应用 · 检查通过后才能配置设备。', { exact: true })).toBeVisible()
 })
 test('操作受理不是完成，取消等待原作业终态', async ({ page }) => {
   await connect(page)
@@ -65,14 +59,13 @@ test('操作受理不是完成，取消等待原作业终态', async ({ page }) 
   await page.request.post('/api/testing/configure', { data: { hold_jobs: true } })
   await openResource(page, 'GPIO')
   await page.getByRole('combobox', { name: '引脚 *', exact: true }).selectOption('0')
-  await page.getByRole('button', { name: '检查引脚与资源', exact: true }).click()
-  await page.getByRole('button', { name: '创建GPIO', exact: true }).click()
+  await saveAndCheck(page)
+  await page.getByRole('button', { name: '应用本组', exact: true }).click()
   await page.getByRole('button', { name: /操作记录/ }).click()
   const dialog = page.getByRole('dialog', { name: '操作记录' })
-  await expect(dialog.locator('.list-row').filter({ hasText: 'resource.open' })).toContainText(
-    '设备已受理',
-  )
-  await dialog.locator('.list-row').filter({ hasText: 'resource.open' }).getByRole('button').click()
+  await dialog.locator('.list-row').filter({ hasText: 'wiring.apply' }).getByRole('button').click()
+  await page.getByText('执行步骤与分块任务', { exact: true }).click()
+  await page.getByRole('button', { name: /resource.open · 设备已受理/ }).click()
   await page.getByRole('button', { name: '请求取消', exact: true }).click()
   await page.request.post('/api/testing/configure', { data: { hold_jobs: false } })
   await expect(page.getByRole('heading', { name: 'resource.open · 已取消' })).toBeVisible()

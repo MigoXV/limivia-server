@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { reset, connect, acquire } from './helpers'
+import { reset, connect, acquire, selectLed } from './helpers'
 
 test.beforeEach(async ({ page }) => {
   await reset(page)
   await connect(page)
+  await selectLed(page)
   await acquire(page)
 })
 
@@ -44,10 +45,10 @@ for (const theme of ['vallum', 'abyssus'])
             notice: !!document.querySelector('main > .notice'),
             heading: document.querySelector('.led-output-state h3')!.textContent!,
             navigation: document.querySelector('.sidebar-navigation')!.textContent!,
-            summary: document.querySelector('.summary-band small')!.textContent!,
+            summary: document.querySelector('.wiring-toolbar > span')!.textContent!,
             connection: document.querySelector('.connection-status')!.textContent!,
             record: document.querySelector('.diagnostic-bar button')!.textContent!.trim(),
-            protocol: document.querySelector('.session-panel dd')!.textContent!,
+            protocol: document.querySelector('.identity-tag')!.textContent!,
           })
           raf = requestAnimationFrame(sample)
         }
@@ -94,7 +95,7 @@ for (const theme of ['vallum', 'abyssus'])
         expect(sample.summary).toBe(first.summary)
         expect(sample.connection).toBe('已连接')
         expect(sample.record).toBe('操作记录')
-        expect(sample.protocol).toBe('兼容 · 已验证')
+        expect(sample.protocol).toBe('signal · 0.3.0-dev')
       }
       const headings = samples
         .map((sample) => sample.heading)

@@ -16,6 +16,7 @@ from limivia.types import MQTTOptions, WebSocketOptions
 
 from .catalog import DESTRUCTIVE, INTERNAL, OBSERVE, OPERATIONS, catalog
 from .store import TERMINAL, OperationStore
+from .wiring import WiringStore, active_bindings
 
 PRIVATE = {
     "session",
@@ -47,6 +48,8 @@ class DeviceService:
         self.sdk_context = AsyncExitStack()
         self.sdk = None
         self.store: OperationStore | None = None
+        self.wiring: WiringStore | None = None
+        self.wiring_checked = None
         self.connection = None
         self.runner = None
         self.tasks = OrderedDict()
@@ -96,6 +99,7 @@ class DeviceService:
                     "工作台数据目录已被使用；设备管理服务只允许单进程、单 worker。"
                 ) from exc
         self.store = OperationStore(self.data_dir / "operations.sqlite3")
+        self.wiring = WiringStore(self.data_dir / "wiring.sqlite3")
         for task in self.store.interrupted():
             task.update(
                 status="unknown",
@@ -116,6 +120,8 @@ class DeviceService:
         for task in list(self.background):
             task.cancel()
         await asyncio.gather(*self.background, return_exceptions=True)
+        if self.wiring:
+            self.wiring.close()
         await self.sdk_context.aclose()
         if self.store:
             self.store.close()
@@ -170,6 +176,10 @@ class DeviceService:
     def view(self, page: str | None = None):
         return {
             **self.state,
+            "wiring_bindings": active_bindings(self),
+            "wiring_revision": self.wiring.get(self.state["identity"]["device_id"])["revision"]
+            if self.wiring and self.state.get("identity")
+            else 0,
             "generation": self.generation,
             "cursor": self.cursor,
             "control": {

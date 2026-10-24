@@ -62,6 +62,8 @@ export interface Operation {
   cancel_requested?: boolean
 }
 export interface DeviceState {
+  wiring_revision?: number
+  wiring_bindings?: Record<string, import('./wiring').WiringBinding>
   status: string
   kind: LinkKind
   generation: number
@@ -277,7 +279,13 @@ class WorkbenchAPI {
       } catch {
         reason = r.statusText
       }
-      throw new Error(typeof reason === 'string' ? reason : JSON.stringify(reason))
+      throw new Error(
+        reason?.reason === 'wiring_conflict'
+          ? '方案版本冲突，另一页面已保存更新；本地修改已保留。'
+          : typeof reason === 'string'
+            ? reason
+            : JSON.stringify(reason),
+      )
     }
     return r.json()
   }
@@ -352,6 +360,14 @@ class WorkbenchAPI {
           if (feed.type === 'snapshot' && feed.data.identity)
             this.scope = { generation: feed.data.generation, boot_id: feed.data.identity.boot_id }
           onFeed(feed)
+          if (feed.type === 'wiring.changed')
+            window.dispatchEvent(new CustomEvent('wiring-changed', { detail: feed.data }))
+          if (feed.type === 'snapshot')
+            window.dispatchEvent(
+              new CustomEvent('wiring-changed', {
+                detail: { ...feed.data.identity, revision: feed.data.wiring_revision },
+              }),
+            )
         }
         socket.onclose = () => {
           clearInterval(ping)

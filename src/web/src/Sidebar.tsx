@@ -1,6 +1,9 @@
+import logoLight from './assets/figma/logo-vallum.svg'
+import logoDark from './assets/figma/logo-abyssus.svg'
 import { kindNames, type DeviceState } from './device'
 import { navigationReason, type Section } from './navigation'
-import type { ResourceView } from './peripherals'
+import type { BoardSelection } from './wiring'
+import type { WiringWorkspace } from './useWiring'
 
 const icons = import.meta.glob<string>('./assets/figma/v4/*.svg', {
   eager: true,
@@ -17,7 +20,6 @@ function Icon({ name }: { name: string }) {
 }
 const navigation = [
   ['home', '设备工作台', 'workspace'],
-  ['peripherals', '外设调试', 'debug'],
   ['flow', '离线流程', 'flow'],
   ['network', '联网通信', 'network'],
   ['files', '板上文件', 'files'],
@@ -26,10 +28,11 @@ const navigation = [
 export function Sidebar({
   state,
   section,
-  view,
+  selection,
+  wiring,
   theme,
   onNavigate,
-  onViewChange,
+  onSelect,
   onFirmware,
   onBoard,
   onTheme,
@@ -37,16 +40,17 @@ export function Sidebar({
 }: {
   state: DeviceState
   section: Section
-  view: ResourceView | null
+  selection: BoardSelection
+  wiring: WiringWorkspace
   theme: string
   onNavigate: (section: Section) => void
-  onViewChange: (view: ResourceView) => void
+  onSelect: (view: BoardSelection) => void
   onFirmware: () => void
   onBoard: () => void
   onTheme: () => void
   onConnect: () => void
 }) {
-  const showResources = section === 'peripherals'
+  const showResources = section === 'home'
   const pinsAvailable =
     state.identity?.board === 'luatos-esp32c3-usb' &&
     state.status === 'ready' &&
@@ -55,7 +59,8 @@ export function Sidebar({
   return (
     <nav className="sidebar" aria-label="工作台导航">
       <div className="brand">
-        <span>L·</span>
+        <img className="brand-mark theme-light" src={logoLight} width="32" height="32" alt="" />
+        <img className="brand-mark theme-dark" src={logoDark} width="32" height="32" alt="" />
         <strong>LIMIVIA</strong>
       </div>
       <button
@@ -79,7 +84,7 @@ export function Sidebar({
             const reason = navigationReason(key, state)
             return (
               <div className="nav-entry" key={key}>
-                {index === 3 && <div className="nav-group-label">设备</div>}
+                {index === 2 && <div className="nav-group-label">设备</div>}
                 <button
                   className={`nav-item ${section === key ? 'selected' : ''}`}
                   aria-current={section === key ? 'page' : undefined}
@@ -92,33 +97,40 @@ export function Sidebar({
                   <span className="nav-label">{title}</span>
                   {reason && <small>{reason}</small>}
                 </button>
-                {key === 'peripherals' && showResources && (
-                  <div className="context-resources" role="group" aria-label="当前外设资源">
-                    {view?.type === 'create' && (
+                {key === 'home' && showResources && (
+                  <div className="context-resources" role="group" aria-label="接线组与设备配置">
+                    {!!wiring.plan?.groups.length && <div className="nav-group-label">接线组</div>}
+                    {wiring.plan?.groups.map((group) => (
                       <button
-                        className="context-resource selected"
-                        aria-current="location"
-                        onClick={() => onViewChange(view)}
+                        key={group.id}
+                        className={`context-resource ${selection?.type === 'group' && selection.id === group.id ? 'selected' : ''}`}
+                        aria-current={
+                          selection?.type === 'group' && selection.id === group.id
+                            ? 'location'
+                            : undefined
+                        }
+                        onClick={() => onSelect({ type: 'group', id: group.id })}
                       >
-                        <span>{kindNames[view.kind] ?? view.kind} · 配置草稿</span>
-                        <small>尚未创建资源</small>
+                        <span>{group.name}</span>
+                        <small>
+                          {kindNames[group.kind] ?? group.kind} ·{' '}
+                          {state.wiring_bindings?.[group.id] ? '设备已有配置' : '方案待应用'}
+                        </small>
                       </button>
-                    )}
-                    {resources.map((resource) => {
-                      const pins = Array.from({ length: 22 }, (_, pin) => pin).filter(
-                        (pin) => resource.pin_mask & (2 ** pin),
+                    ))}
+                    {resources
+                      .filter(
+                        (r) =>
+                          !Object.values(state.wiring_bindings ?? {}).some(
+                            (b) => b.resource === r.id && b.instance === r.instance,
+                          ),
                       )
-                      const selected =
-                        view?.type === 'resource' &&
-                        view.id === resource.id &&
-                        view.instance === resource.instance
-                      return (
+                      .map((resource) => (
                         <button
-                          className={`context-resource ${selected ? 'selected' : ''}`}
-                          key={resource.id}
-                          aria-current={selected ? 'location' : undefined}
+                          key={`${resource.id}:${resource.instance}`}
+                          className={`context-resource ${selection?.type === 'resource' && selection.id === resource.id && selection.instance === resource.instance ? 'selected' : ''}`}
                           onClick={() =>
-                            onViewChange({
+                            onSelect({
                               type: 'resource',
                               id: resource.id,
                               instance: resource.instance,
@@ -126,21 +138,24 @@ export function Sidebar({
                           }
                         >
                           <span>
-                            {kindNames[resource.kind] ?? resource.kind} ·{' '}
-                            {pins.length ? `GPIO ${pins.join('/')}` : `#${resource.id}`}
+                            {kindNames[resource.kind]} ·{' '}
+                            {resource.pin_mask
+                              ? 'GPIO ' +
+                                Array.from({ length: 22 }, (_, pin) => pin)
+                                  .filter((pin) => resource.pin_mask & (2 ** pin))
+                                  .join('/')
+                              : '#' + resource.id}
                           </span>
                           <small>
+                            未归组 ·{' '}
                             {resource.state !== 'ready'
-                              ? { opening: '创建中', closing: '关闭中', fault: '故障 · 仍占用' }[
-                                  resource.state
-                                ]
+                              ? resource.state
                               : state.resource_owners[resource.id]
                                 ? '本页面创建'
                                 : '其他来源'}
                           </small>
                         </button>
-                      )
-                    })}
+                      ))}
                   </div>
                 )}
               </div>

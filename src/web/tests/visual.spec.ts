@@ -19,11 +19,9 @@ for (const [kind, profile] of kinds)
     await connect(page, profile)
     await acquire(page)
     await openResource(page, kindNames[kind] ?? kind)
-    await expect(page.getByRole('heading', { name: '配置资源', exact: true })).toBeVisible()
-    await expect(
-      page.getByRole('button', { name: '创建' + (kindNames[kind] ?? kind), exact: true }),
-    ).toBeDisabled()
-    await expect(page.getByText('编辑后请先进行预检。')).toBeVisible()
+    await expect(page.getByLabel('接线组名称', { exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: '应用本组', exact: true })).toBeDisabled()
+    await expect(page.getByText('先保存方案，再检查并应用本组。')).toBeVisible()
   })
 for (const theme of ['vallum', 'abyssus'])
   for (const width of [320, 768, 1280, 1440])
@@ -61,7 +59,7 @@ for (const theme of ['vallum', 'abyssus'])
     await connect(page, 'iot')
     await acquire(page)
     if (theme === 'abyssus') await page.getByRole('button', { name: '切换苍渊' }).click()
-    for (const title of ['外设调试', '离线流程', '板上文件', '联网通信', '设备维护']) {
+    for (const title of ['设备工作台', '离线流程', '板上文件', '联网通信', '设备维护']) {
       await page.getByRole('navigation').getByRole('button', { name: title, exact: true }).click()
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
@@ -99,8 +97,7 @@ test('键盘跳转主区和 200% 放大布局', async ({ page }, testInfo) => {
 test('物理板图保留 32 引脚、正反面和 Escape 返回焦点', async ({ page }) => {
   await reset(page)
   await connect(page)
-  await page.getByRole('navigation').getByRole('button', { name: '外设调试', exact: true }).click()
-  const trigger = page.getByRole('button', { name: '引脚与占用', exact: true })
+  const trigger = page.getByRole('button', { name: '放大接线图', exact: true })
   await trigger.click()
   const dialog = page.getByRole('dialog', { name: '实物接线图 · 32 引脚' })
   await expect(dialog).toBeVisible()

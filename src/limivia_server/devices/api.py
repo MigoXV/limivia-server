@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .service import DeviceService
 from .transfers import download_file, start_upload, validate_flow
+from .wiring import GroupOperation, WiringPlan, start_group_operation
 
 
 class ConnectInput(BaseModel):
@@ -62,6 +63,37 @@ def device_router(service: DeviceService) -> APIRouter:
     @router.post("/api/pages")
     async def new_page():
         return service.new_page()
+
+    @router.get("/api/wiring-plans/{device_id}")
+    async def wiring_get(device_id: str, x_page_session: str = Header(default="")):
+        page(x_page_session)
+        identity = service.state.get("identity") or {}
+        board = identity.get("board") if identity.get("device_id") == device_id else None
+        return service.wiring.get(device_id, board)
+
+    @router.put("/api/wiring-plans/{device_id}")
+    async def wiring_save(
+        device_id: str, body: WiringPlan, x_page_session: str = Header(default="")
+    ):
+        page(x_page_session)
+        identity = service.state.get("identity") or {}
+        if identity.get("device_id") != device_id or identity.get("board") != body.board:
+            raise HTTPException(409, "请连接并核对方案对应设备与板型。")
+        value = service.wiring.save(device_id, body)
+        service.wiring_checked = None
+        service.emit("wiring.changed", {"device_id": device_id, "revision": value["revision"]})
+        return value
+
+    @router.post("/api/device/wiring-groups/{group_id}/{action}", status_code=202)
+    async def wiring_action(
+        group_id: str,
+        action: Literal["check", "apply"],
+        body: GroupOperation,
+        x_page_session: str = Header(default=""),
+    ):
+        return await start_group_operation(
+            service, body, group_id, page(x_page_session), action == "apply"
+        )
 
     @router.get("/api/device/discover")
     async def discover(kind: Literal["ble", "usb"] = "ble"):
