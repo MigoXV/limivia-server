@@ -11,7 +11,7 @@ dependencies = [
     "typer>=0.15,<1",
     "fastapi[standard]>=0.156.8,<1",
     "anyio>=4,<5",
-    "limivia (==0.1.0)"
+    "pydantic>=2,<3"
 ]
 
 [project.scripts]
@@ -25,9 +25,6 @@ pytest = ">=8,<9"
 httpx = ">=0.28,<1"
 ruff = ">=0.11,<1"
 
-[tool.poetry.dependencies]
-limivia = {source = "tuna"}
-
 [tool.ruff]
 target-version = "py312"
 line-length = 100
@@ -36,6 +33,7 @@ line-length = 100
 name = "tuna"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 priority = "primary"
+
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

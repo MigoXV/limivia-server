@@ -62,7 +62,7 @@ export function Board({
                   ready &&
                   (i === 0
                     ? state?.pins.find((p) => p.pin === 13)?.level === 1
-                    : state?.ble_connected || state?.usb_active)
+                    : state?.sessions.some((session) => session.active))
                     ? 'led active'
                     : 'led'
                 }

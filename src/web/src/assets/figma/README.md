@@ -1,5 +1,7 @@
 # Figma 静态资源
 
+2026-10-24 的 v3 工作台依据同一设计文件的工作台、外设目录与 PWM、离线流程、联网通信页面实现。六类业务导航采用文字入口，继续使用 `board.svg` 作为“引脚与占用”图标；下表其余旧实验导航资源保留来源记录，不代表当前导航结构。流程节点与连线依据真实流程定义动态生成，未把设计截图或示例流程作为运行数据。
+
 导航图标已按 [LIMIVIA · LED 白垣设计](https://www.figma.com/design/AzGxH7vvqqpSfxBXUBRYbf/limivia?node-id=33-2888) 于 2026-10-22 重新下载核对，与现有六个 SVG 逐字节一致，继续复用本地文件。板卡功能示意沿用 [原完整交互设计](https://www.figma.com/design/9WbAWG0bfGyDgJPDugJMTh?node-id=33-2887)。全部资源保留原始 SVG 与固有尺寸；应用从本地导入，不使用临时下载链接。
 
 | 文件 | 设计节点 | 固有尺寸 | 用途 |
@@ -15,3 +17,14 @@
 功能示意不提供实物接线依据。原型外围的简化引脚标注不沿用到实际接线；完整的 32 引脚、正反面和保护信息继续由 `Board.tsx` 与 `board.ts` 提供。
 
 LED 示意由设计中的几何图层实现；ADC 曲线、刻度和读数根据设备采样动态生成，不使用原型示例数据或截图。
+
+2026-10-24 首页 LED 同步新增下列原始导出，来自白垣 `2138:1351`、苍渊 `2138:1403`。SVG 内容及固有尺寸保持不变，通过容器裁切显示板底部的 USB、D5、D4，两个主题分别使用各自的原始资源。
+
+| 文件 | 固有尺寸 | 用途 |
+| --- | --- | --- |
+| led-board-vallum.svg / led-board-abyssus.svg | 293.236 × 537.6 | 板底部局部示意 |
+| led-target-vallum.svg / led-target-abyssus.svg | 28 × 28 | D5 定位圈 |
+
+板载 LED 映射仅适用于已确认的 `luatos-esp32c3-usb`。字体与布局的核对记录见 [设计同步核对](../../../../../docs/figma-ui-audit.md)。
+
+2026-10-24 再次同步 V4 公共侧栏组件 `2160:3146` 与导航组件 `2160:3125`。新增 `v4/` 目录，包含 workspace、debug、flow、network、files、maintenance、firmware、new、pins 九类图标各自的 Vallum/Abyssus 原始 SVG，共 18 个，固有尺寸均为 16×16。资源来自主工作台和 PWM 调试画板的 `get_design_context` 导出，文件内容不作修改；`Sidebar.tsx` 按主题选择对应文件，不重新绘制或过滤改色。原 `board.svg` 保留为历史来源记录，V4 侧栏使用新 pins 图标。

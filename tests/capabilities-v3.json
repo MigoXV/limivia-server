@@ -1,0 +1,4592 @@
+{
+  "source": "SDK JSON-RPC captured vectors, frozen firmware e0340006; capability pages only, test fixtures",
+  "profiles": {
+    "bus": {
+      "0": {
+        "items": [
+          {
+            "pin": 0,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 0,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 1,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 1,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 2,
+            "digital": false,
+            "adc1": false,
+            "chip_adc1_channel": 2,
+            "deep_sleep_wake": false,
+            "reserved": "boot_strap"
+          },
+          {
+            "pin": 3,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 3,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 4,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 4,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 5,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": true,
+            "analog_unavailable": "adc2_chip_limitation"
+          },
+          {
+            "pin": 6,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 7,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 8,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "boot_strap"
+          },
+          {
+            "pin": 9,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "boot_strap"
+          },
+          {
+            "pin": 10,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 11,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash_voltage"
+          },
+          {
+            "pin": 12,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "status_led"
+          },
+          {
+            "pin": 13,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "load": "onboard_led_D5"
+          },
+          {
+            "pin": 14,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 15,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 16,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 17,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 18,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "native_usb"
+          },
+          {
+            "pin": 19,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "native_usb"
+          },
+          {
+            "pin": 20,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 21,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          }
+        ],
+        "page": 0,
+        "pages": 28
+      },
+      "1": {
+        "items": [
+          {
+            "kind": "gpio",
+            "available": true,
+            "capacity": 11,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "input output open_drain"
+              },
+              {
+                "name": "pull",
+                "type": "enum",
+                "values": "none up down"
+              },
+              {
+                "name": "level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "drive",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "edge",
+                "type": "enum",
+                "values": "none rising falling any"
+              },
+              {
+                "name": "debounce_us",
+                "type": "integer",
+                "min": 0,
+                "max": 1000000
+              }
+            ]
+          },
+          {
+            "kind": "pwm",
+            "available": true,
+            "capacity": 6,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "frequency",
+                "type": "integer",
+                "min": 1,
+                "max": 40000000
+              },
+              {
+                "name": "resolution",
+                "type": "integer",
+                "min": 1,
+                "max": 14
+              },
+              {
+                "name": "duty",
+                "type": "number",
+                "min": 0,
+                "max": 100
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "end_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "breath_ms",
+                "type": "integer",
+                "min": 0,
+                "max": 3600000
+              }
+            ]
+          },
+          {
+            "kind": "adc",
+            "available": true,
+            "capacity": 4,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "attenuation",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "interval_ms",
+                "type": "integer",
+                "min": 0,
+                "max": 3600000
+              }
+            ]
+          },
+          {
+            "kind": "adc.continuous",
+            "available": false,
+            "capacity": 1,
+            "pin_roles": "ch0 ch1 ch3 ch4",
+            "required_pins": "",
+            "config": [
+              {
+                "name": "attenuation",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "sample_rate",
+                "type": "integer",
+                "min": 611,
+                "max": 83333
+              },
+              {
+                "name": "pool_bytes",
+                "type": "integer",
+                "min": 1024,
+                "max": 8192
+              }
+            ]
+          },
+          {
+            "kind": "uart",
+            "available": true,
+            "capacity": 2,
+            "pin_roles": "tx rx rts cts",
+            "required_pins": "",
+            "config": [
+              {
+                "name": "baud",
+                "type": "integer",
+                "min": 50,
+                "max": 5000000
+              },
+              {
+                "name": "data_bits",
+                "type": "integer",
+                "min": 5,
+                "max": 8
+              },
+              {
+                "name": "parity",
+                "type": "enum",
+                "values": "none even odd"
+              },
+              {
+                "name": "stop_bits",
+                "type": "integer",
+                "min": 1,
+                "max": 2
+              },
+              {
+                "name": "flow_control",
+                "type": "boolean"
+              },
+              {
+                "name": "rx_threshold",
+                "type": "integer",
+                "min": 1,
+                "max": 120
+              },
+              {
+                "name": "invert_mask",
+                "type": "integer",
+                "min": 0,
+                "max": 255
+              },
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "uart rs485"
+              },
+              {
+                "name": "rx_buffer",
+                "type": "integer",
+                "min": 256,
+                "max": 4096
+              },
+              {
+                "name": "tx_buffer",
+                "type": "integer",
+                "min": 256,
+                "max": 4096
+              },
+              {
+                "name": "loopback",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "i2c.master",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "sda scl",
+            "required_pins": "sda scl",
+            "config": [
+              {
+                "name": "pullup",
+                "type": "boolean"
+              },
+              {
+                "name": "glitch_ignore",
+                "type": "integer",
+                "min": 0,
+                "max": 7
+              }
+            ]
+          },
+          {
+            "kind": "i2c.device",
+            "available": true,
+            "capacity": 8,
+            "pin_roles": "",
+            "required_pins": "",
+            "config": [
+              {
+                "name": "address",
+                "type": "integer",
+                "min": 0,
+                "max": 1023
+              },
+              {
+                "name": "address_bits",
+                "type": "integer",
+                "min": 7,
+                "max": 10
+              },
+              {
+                "name": "frequency",
+                "type": "integer",
+                "min": 1000,
+                "max": 400000
+              },
+              {
+                "name": "scl_wait_us",
+                "type": "integer",
+                "min": 0,
+                "max": 1000000
+              }
+            ]
+          },
+          {
+            "kind": "i2c.slave",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "sda scl",
+            "required_pins": "sda scl",
+            "config": [
+              {
+                "name": "address",
+                "type": "integer",
+                "min": 0,
+                "max": 1023
+              },
+              {
+                "name": "address_bits",
+                "type": "integer",
+                "min": 7,
+                "max": 10
+              },
+              {
+                "name": "pullup",
+                "type": "boolean"
+              },
+              {
+                "name": "buffer_bytes",
+                "type": "integer",
+                "min": 128,
+                "max": 4096
+              }
+            ]
+          },
+          {
+            "kind": "spi.master",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "sclk mosi miso wp hd",
+            "required_pins": "sclk",
+            "config": [
+              {
+                "name": "max_transfer",
+                "type": "integer",
+                "min": 4,
+                "max": 4096
+              },
+              {
+                "name": "quad",
+                "type": "boolean"
+              }
+            ]
+          }
+        ],
+        "page": 1,
+        "pages": 28
+      },
+      "2": {
+        "items": [
+          {
+            "kind": "spi.device",
+            "available": true,
+            "capacity": 6,
+            "pin_roles": "cs",
+            "required_pins": "cs",
+            "config": [
+              {
+                "name": "frequency",
+                "type": "integer",
+                "min": 1000,
+                "max": 80000000
+              },
+              {
+                "name": "mode",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "command_bits",
+                "type": "integer",
+                "min": 0,
+                "max": 16
+              },
+              {
+                "name": "address_bits",
+                "type": "integer",
+                "min": 0,
+                "max": 64
+              },
+              {
+                "name": "dummy_bits",
+                "type": "integer",
+                "min": 0,
+                "max": 256
+              },
+              {
+                "name": "lsb_first",
+                "type": "boolean"
+              },
+              {
+                "name": "half_duplex",
+                "type": "boolean"
+              },
+              {
+                "name": "queue_depth",
+                "type": "integer",
+                "min": 1,
+                "max": 4
+              }
+            ]
+          },
+          {
+            "kind": "spi.slave",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "sclk mosi miso cs ready",
+            "required_pins": "sclk cs",
+            "config": [
+              {
+                "name": "mode",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "lsb_first",
+                "type": "boolean"
+              },
+              {
+                "name": "max_transfer",
+                "type": "integer",
+                "min": 4,
+                "max": 4096
+              },
+              {
+                "name": "queue_depth",
+                "type": "integer",
+                "min": 1,
+                "max": 4
+              }
+            ]
+          },
+          {
+            "kind": "twai",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "tx rx",
+            "required_pins": "tx rx",
+            "config": [
+              {
+                "name": "bitrate",
+                "type": "integer",
+                "min": 1000,
+                "max": 1000000
+              },
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "normal listen_only self_test"
+              },
+              {
+                "name": "queue_depth",
+                "type": "integer",
+                "min": 1,
+                "max": 16
+              },
+              {
+                "name": "filter_id",
+                "type": "integer",
+                "min": 0,
+                "max": 536870911
+              },
+              {
+                "name": "filter_mask",
+                "type": "integer",
+                "min": 0,
+                "max": 536870911
+              },
+              {
+                "name": "extended",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "rmt.tx",
+            "available": true,
+            "capacity": 2,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "resolution_hz",
+                "type": "integer",
+                "min": 100000,
+                "max": 40000000
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "carrier_hz",
+                "type": "integer",
+                "min": 0,
+                "max": 10000000
+              },
+              {
+                "name": "carrier_duty",
+                "type": "number",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "idle_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              }
+            ]
+          },
+          {
+            "kind": "rmt.rx",
+            "available": true,
+            "capacity": 2,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "resolution_hz",
+                "type": "integer",
+                "min": 100000,
+                "max": 40000000
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "carrier_hz",
+                "type": "integer",
+                "min": 0,
+                "max": 10000000
+              },
+              {
+                "name": "carrier_duty",
+                "type": "number",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "idle_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              }
+            ]
+          },
+          {
+            "kind": "i2s",
+            "available": false,
+            "capacity": 1,
+            "pin_roles": "bclk ws din dout mclk",
+            "required_pins": "bclk",
+            "config": [
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "standard tdm pdm"
+              },
+              {
+                "name": "role",
+                "type": "enum",
+                "values": "master slave"
+              },
+              {
+                "name": "direction",
+                "type": "enum",
+                "values": "tx rx duplex"
+              },
+              {
+                "name": "sample_rate",
+                "type": "integer",
+                "min": 1000,
+                "max": 6144000
+              },
+              {
+                "name": "bits",
+                "type": "integer",
+                "min": 8,
+                "max": 32
+              },
+              {
+                "name": "slots",
+                "type": "integer",
+                "min": 1,
+                "max": 16
+              },
+              {
+                "name": "slot_mask",
+                "type": "integer",
+                "min": 1,
+                "max": 65535
+              },
+              {
+                "name": "dma_frames",
+                "type": "integer",
+                "min": 16,
+                "max": 512
+              },
+              {
+                "name": "left_align",
+                "type": "boolean"
+              },
+              {
+                "name": "bit_shift",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "sigma_delta",
+            "available": false,
+            "capacity": 4,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "sample_rate",
+                "type": "integer",
+                "min": 1000,
+                "max": 20000000
+              },
+              {
+                "name": "density",
+                "type": "integer",
+                "min": -128,
+                "max": 127
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "timer",
+            "available": true,
+            "capacity": 4,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "high_ms",
+                "type": "integer",
+                "min": 10,
+                "max": 3600000
+              },
+              {
+                "name": "low_ms",
+                "type": "integer",
+                "min": 10,
+                "max": 3600000
+              },
+              {
+                "name": "count",
+                "type": "integer",
+                "min": 0,
+                "max": 100000
+              },
+              {
+                "name": "end_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              }
+            ]
+          },
+          {
+            "kind": "temperature",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "",
+            "required_pins": "",
+            "config": []
+          }
+        ],
+        "page": 2,
+        "pages": 28
+      },
+      "3": {
+        "items": [
+          [
+            {
+              "action": "read",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "write",
+              "payload": false,
+              "args": [
+                {
+                  "name": "level",
+                  "required": true,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 1
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 3,
+        "pages": 28,
+        "kind": "gpio",
+        "available": true
+      },
+      "4": {
+        "items": [
+          [
+            {
+              "action": "duty",
+              "payload": false,
+              "args": [
+                {
+                  "name": "duty",
+                  "required": true,
+                  "type": "number",
+                  "min": 0,
+                  "max": 100
+                }
+              ]
+            },
+            {
+              "action": "fade",
+              "payload": false,
+              "args": [
+                {
+                  "name": "duty",
+                  "required": true,
+                  "type": "number",
+                  "min": 0,
+                  "max": 100
+                },
+                {
+                  "name": "duration_ms",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 3600000
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 4,
+        "pages": 28,
+        "kind": "pwm",
+        "available": true
+      },
+      "5": {
+        "items": [
+          [
+            {
+              "action": "read",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 5,
+        "pages": 28,
+        "kind": "adc",
+        "available": true
+      },
+      "6": {
+        "items": [
+          [
+            {
+              "action": "start",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "stop",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "read",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 6,
+        "pages": 28,
+        "kind": "adc.continuous",
+        "available": false
+      },
+      "7": {
+        "items": [
+          [
+            {
+              "action": "write",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "read",
+              "payload": false,
+              "args": [
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            },
+            {
+              "action": "break",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": true,
+                  "type": "string"
+                },
+                {
+                  "name": "bits",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 255
+                }
+              ]
+            },
+            {
+              "action": "drain",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "clear",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "errors",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 7,
+        "pages": 28,
+        "kind": "uart",
+        "available": true
+      },
+      "8": {
+        "items": [
+          [
+            {
+              "action": "probe",
+              "payload": false,
+              "args": [
+                {
+                  "name": "address",
+                  "required": true,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 127
+                }
+              ]
+            },
+            {
+              "action": "scan",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "recover",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 8,
+        "pages": 28,
+        "kind": "i2c.master",
+        "available": true
+      },
+      "9": {
+        "items": [
+          [
+            {
+              "action": "write",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "read",
+              "payload": false,
+              "args": [
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            },
+            {
+              "action": "write_read",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 9,
+        "pages": 28,
+        "kind": "i2c.device",
+        "available": true
+      },
+      "10": {
+        "items": [
+          [
+            {
+              "action": "preload",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "clear_tx",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 10,
+        "pages": 28,
+        "kind": "i2c.slave",
+        "available": true
+      },
+      "11": {
+        "items": [
+          []
+        ],
+        "page": 11,
+        "pages": 28,
+        "kind": "spi.master",
+        "available": true
+      },
+      "12": {
+        "items": [
+          [
+            {
+              "action": "transfer",
+              "payload": false,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "rx_length",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 4096
+                },
+                {
+                  "name": "command",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 65535
+                },
+                {
+                  "name": "address_hex",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "lines",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4
+                }
+              ]
+            },
+            {
+              "action": "result",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 12,
+        "pages": 28,
+        "kind": "spi.device",
+        "available": true
+      },
+      "13": {
+        "items": [
+          [
+            {
+              "action": "queue",
+              "payload": false,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "rx_length",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 4096
+                },
+                {
+                  "name": "command",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 65535
+                },
+                {
+                  "name": "address_hex",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "lines",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4
+                }
+              ]
+            },
+            {
+              "action": "result",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "cancel",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 13,
+        "pages": 28,
+        "kind": "spi.slave",
+        "available": true
+      },
+      "14": {
+        "items": [
+          [
+            {
+              "action": "send",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": true,
+                  "type": "string"
+                },
+                {
+                  "name": "id",
+                  "required": true,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 536870911
+                },
+                {
+                  "name": "extended",
+                  "required": false,
+                  "type": "boolean"
+                },
+                {
+                  "name": "remote",
+                  "required": false,
+                  "type": "boolean"
+                }
+              ]
+            },
+            {
+              "action": "info",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "recover",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 14,
+        "pages": 28,
+        "kind": "twai",
+        "available": true
+      },
+      "15": {
+        "items": [
+          [
+            {
+              "action": "transmit",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "loops",
+                  "required": false,
+                  "type": "integer",
+                  "min": -1,
+                  "max": 1023
+                }
+              ]
+            },
+            {
+              "action": "abort",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "wait",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 15,
+        "pages": 28,
+        "kind": "rmt.tx",
+        "available": true
+      },
+      "16": {
+        "items": [
+          [
+            {
+              "action": "capture",
+              "payload": false,
+              "args": [
+                {
+                  "name": "min_ns",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 4294967295
+                },
+                {
+                  "name": "max_ns",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4294967295
+                }
+              ]
+            },
+            {
+              "action": "result",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "abort",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 16,
+        "pages": 28,
+        "kind": "rmt.rx",
+        "available": true
+      },
+      "17": {
+        "items": [
+          [
+            {
+              "action": "start",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "stop",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "play",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "record",
+              "payload": false,
+              "args": [
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 17,
+        "pages": 28,
+        "kind": "i2s",
+        "available": false
+      },
+      "18": {
+        "items": [
+          [
+            {
+              "action": "density",
+              "payload": false,
+              "args": [
+                {
+                  "name": "density",
+                  "required": true,
+                  "type": "integer",
+                  "min": -128,
+                  "max": 127
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 18,
+        "pages": 28,
+        "kind": "sigma_delta",
+        "available": false
+      },
+      "21": {
+        "items": [],
+        "page": 21,
+        "pages": 28,
+        "operations": [
+          {
+            "op": "hello",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "session.ping",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "event.subscribe",
+            "params": "topics interval_ms",
+            "available": true
+          },
+          {
+            "op": "event.unsubscribe",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "control.acquire",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "control.release",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "outputs.stop",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "capabilities",
+            "params": "page",
+            "available": true
+          },
+          {
+            "op": "state",
+            "params": "page revision",
+            "available": true
+          },
+          {
+            "op": "diagnostics",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "mux.query",
+            "params": "page revision",
+            "available": true
+          },
+          {
+            "op": "mux.preflight",
+            "params": "kind parent controller pins config",
+            "available": true
+          }
+        ]
+      }
+    },
+    "signal": {
+      "0": {
+        "items": [
+          {
+            "pin": 0,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 0,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 1,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 1,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 2,
+            "digital": false,
+            "adc1": false,
+            "chip_adc1_channel": 2,
+            "deep_sleep_wake": false,
+            "reserved": "boot_strap"
+          },
+          {
+            "pin": 3,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 3,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 4,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 4,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 5,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": true,
+            "analog_unavailable": "adc2_chip_limitation"
+          },
+          {
+            "pin": 6,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 7,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 8,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "boot_strap"
+          },
+          {
+            "pin": 9,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "boot_strap"
+          },
+          {
+            "pin": 10,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 11,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash_voltage"
+          },
+          {
+            "pin": 12,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "status_led"
+          },
+          {
+            "pin": 13,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "load": "onboard_led_D5"
+          },
+          {
+            "pin": 14,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 15,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 16,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 17,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 18,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "native_usb"
+          },
+          {
+            "pin": 19,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "native_usb"
+          },
+          {
+            "pin": 20,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 21,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          }
+        ],
+        "page": 0,
+        "pages": 28
+      },
+      "1": {
+        "items": [
+          {
+            "kind": "gpio",
+            "available": true,
+            "capacity": 11,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "input output open_drain"
+              },
+              {
+                "name": "pull",
+                "type": "enum",
+                "values": "none up down"
+              },
+              {
+                "name": "level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "drive",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "edge",
+                "type": "enum",
+                "values": "none rising falling any"
+              },
+              {
+                "name": "debounce_us",
+                "type": "integer",
+                "min": 0,
+                "max": 1000000
+              }
+            ]
+          },
+          {
+            "kind": "pwm",
+            "available": true,
+            "capacity": 6,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "frequency",
+                "type": "integer",
+                "min": 1,
+                "max": 40000000
+              },
+              {
+                "name": "resolution",
+                "type": "integer",
+                "min": 1,
+                "max": 14
+              },
+              {
+                "name": "duty",
+                "type": "number",
+                "min": 0,
+                "max": 100
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "end_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "breath_ms",
+                "type": "integer",
+                "min": 0,
+                "max": 3600000
+              }
+            ]
+          },
+          {
+            "kind": "adc",
+            "available": true,
+            "capacity": 4,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "attenuation",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "interval_ms",
+                "type": "integer",
+                "min": 0,
+                "max": 3600000
+              }
+            ]
+          },
+          {
+            "kind": "adc.continuous",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "ch0 ch1 ch3 ch4",
+            "required_pins": "",
+            "config": [
+              {
+                "name": "attenuation",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "sample_rate",
+                "type": "integer",
+                "min": 611,
+                "max": 83333
+              },
+              {
+                "name": "pool_bytes",
+                "type": "integer",
+                "min": 1024,
+                "max": 8192
+              }
+            ]
+          },
+          {
+            "kind": "uart",
+            "available": false,
+            "capacity": 2,
+            "pin_roles": "tx rx rts cts",
+            "required_pins": "",
+            "config": [
+              {
+                "name": "baud",
+                "type": "integer",
+                "min": 50,
+                "max": 5000000
+              },
+              {
+                "name": "data_bits",
+                "type": "integer",
+                "min": 5,
+                "max": 8
+              },
+              {
+                "name": "parity",
+                "type": "enum",
+                "values": "none even odd"
+              },
+              {
+                "name": "stop_bits",
+                "type": "integer",
+                "min": 1,
+                "max": 2
+              },
+              {
+                "name": "flow_control",
+                "type": "boolean"
+              },
+              {
+                "name": "rx_threshold",
+                "type": "integer",
+                "min": 1,
+                "max": 120
+              },
+              {
+                "name": "invert_mask",
+                "type": "integer",
+                "min": 0,
+                "max": 255
+              },
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "uart rs485"
+              },
+              {
+                "name": "rx_buffer",
+                "type": "integer",
+                "min": 256,
+                "max": 4096
+              },
+              {
+                "name": "tx_buffer",
+                "type": "integer",
+                "min": 256,
+                "max": 4096
+              },
+              {
+                "name": "loopback",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "i2c.master",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "sda scl",
+            "required_pins": "sda scl",
+            "config": [
+              {
+                "name": "pullup",
+                "type": "boolean"
+              },
+              {
+                "name": "glitch_ignore",
+                "type": "integer",
+                "min": 0,
+                "max": 7
+              }
+            ]
+          },
+          {
+            "kind": "i2c.device",
+            "available": true,
+            "capacity": 8,
+            "pin_roles": "",
+            "required_pins": "",
+            "config": [
+              {
+                "name": "address",
+                "type": "integer",
+                "min": 0,
+                "max": 1023
+              },
+              {
+                "name": "address_bits",
+                "type": "integer",
+                "min": 7,
+                "max": 10
+              },
+              {
+                "name": "frequency",
+                "type": "integer",
+                "min": 1000,
+                "max": 400000
+              },
+              {
+                "name": "scl_wait_us",
+                "type": "integer",
+                "min": 0,
+                "max": 1000000
+              }
+            ]
+          },
+          {
+            "kind": "i2c.slave",
+            "available": false,
+            "capacity": 1,
+            "pin_roles": "sda scl",
+            "required_pins": "sda scl",
+            "config": [
+              {
+                "name": "address",
+                "type": "integer",
+                "min": 0,
+                "max": 1023
+              },
+              {
+                "name": "address_bits",
+                "type": "integer",
+                "min": 7,
+                "max": 10
+              },
+              {
+                "name": "pullup",
+                "type": "boolean"
+              },
+              {
+                "name": "buffer_bytes",
+                "type": "integer",
+                "min": 128,
+                "max": 4096
+              }
+            ]
+          },
+          {
+            "kind": "spi.master",
+            "available": false,
+            "capacity": 1,
+            "pin_roles": "sclk mosi miso wp hd",
+            "required_pins": "sclk",
+            "config": [
+              {
+                "name": "max_transfer",
+                "type": "integer",
+                "min": 4,
+                "max": 4096
+              },
+              {
+                "name": "quad",
+                "type": "boolean"
+              }
+            ]
+          }
+        ],
+        "page": 1,
+        "pages": 28
+      },
+      "2": {
+        "items": [
+          {
+            "kind": "spi.device",
+            "available": false,
+            "capacity": 6,
+            "pin_roles": "cs",
+            "required_pins": "cs",
+            "config": [
+              {
+                "name": "frequency",
+                "type": "integer",
+                "min": 1000,
+                "max": 80000000
+              },
+              {
+                "name": "mode",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "command_bits",
+                "type": "integer",
+                "min": 0,
+                "max": 16
+              },
+              {
+                "name": "address_bits",
+                "type": "integer",
+                "min": 0,
+                "max": 64
+              },
+              {
+                "name": "dummy_bits",
+                "type": "integer",
+                "min": 0,
+                "max": 256
+              },
+              {
+                "name": "lsb_first",
+                "type": "boolean"
+              },
+              {
+                "name": "half_duplex",
+                "type": "boolean"
+              },
+              {
+                "name": "queue_depth",
+                "type": "integer",
+                "min": 1,
+                "max": 4
+              }
+            ]
+          },
+          {
+            "kind": "spi.slave",
+            "available": false,
+            "capacity": 1,
+            "pin_roles": "sclk mosi miso cs ready",
+            "required_pins": "sclk cs",
+            "config": [
+              {
+                "name": "mode",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "lsb_first",
+                "type": "boolean"
+              },
+              {
+                "name": "max_transfer",
+                "type": "integer",
+                "min": 4,
+                "max": 4096
+              },
+              {
+                "name": "queue_depth",
+                "type": "integer",
+                "min": 1,
+                "max": 4
+              }
+            ]
+          },
+          {
+            "kind": "twai",
+            "available": false,
+            "capacity": 1,
+            "pin_roles": "tx rx",
+            "required_pins": "tx rx",
+            "config": [
+              {
+                "name": "bitrate",
+                "type": "integer",
+                "min": 1000,
+                "max": 1000000
+              },
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "normal listen_only self_test"
+              },
+              {
+                "name": "queue_depth",
+                "type": "integer",
+                "min": 1,
+                "max": 16
+              },
+              {
+                "name": "filter_id",
+                "type": "integer",
+                "min": 0,
+                "max": 536870911
+              },
+              {
+                "name": "filter_mask",
+                "type": "integer",
+                "min": 0,
+                "max": 536870911
+              },
+              {
+                "name": "extended",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "rmt.tx",
+            "available": true,
+            "capacity": 2,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "resolution_hz",
+                "type": "integer",
+                "min": 100000,
+                "max": 40000000
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "carrier_hz",
+                "type": "integer",
+                "min": 0,
+                "max": 10000000
+              },
+              {
+                "name": "carrier_duty",
+                "type": "number",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "idle_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              }
+            ]
+          },
+          {
+            "kind": "rmt.rx",
+            "available": true,
+            "capacity": 2,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "resolution_hz",
+                "type": "integer",
+                "min": 100000,
+                "max": 40000000
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "carrier_hz",
+                "type": "integer",
+                "min": 0,
+                "max": 10000000
+              },
+              {
+                "name": "carrier_duty",
+                "type": "number",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "idle_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              }
+            ]
+          },
+          {
+            "kind": "i2s",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "bclk ws din dout mclk",
+            "required_pins": "bclk",
+            "config": [
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "standard tdm pdm"
+              },
+              {
+                "name": "role",
+                "type": "enum",
+                "values": "master slave"
+              },
+              {
+                "name": "direction",
+                "type": "enum",
+                "values": "tx rx duplex"
+              },
+              {
+                "name": "sample_rate",
+                "type": "integer",
+                "min": 1000,
+                "max": 6144000
+              },
+              {
+                "name": "bits",
+                "type": "integer",
+                "min": 8,
+                "max": 32
+              },
+              {
+                "name": "slots",
+                "type": "integer",
+                "min": 1,
+                "max": 16
+              },
+              {
+                "name": "slot_mask",
+                "type": "integer",
+                "min": 1,
+                "max": 65535
+              },
+              {
+                "name": "dma_frames",
+                "type": "integer",
+                "min": 16,
+                "max": 512
+              },
+              {
+                "name": "left_align",
+                "type": "boolean"
+              },
+              {
+                "name": "bit_shift",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "sigma_delta",
+            "available": true,
+            "capacity": 4,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "sample_rate",
+                "type": "integer",
+                "min": 1000,
+                "max": 20000000
+              },
+              {
+                "name": "density",
+                "type": "integer",
+                "min": -128,
+                "max": 127
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "timer",
+            "available": true,
+            "capacity": 4,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "high_ms",
+                "type": "integer",
+                "min": 10,
+                "max": 3600000
+              },
+              {
+                "name": "low_ms",
+                "type": "integer",
+                "min": 10,
+                "max": 3600000
+              },
+              {
+                "name": "count",
+                "type": "integer",
+                "min": 0,
+                "max": 100000
+              },
+              {
+                "name": "end_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              }
+            ]
+          },
+          {
+            "kind": "temperature",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "",
+            "required_pins": "",
+            "config": []
+          }
+        ],
+        "page": 2,
+        "pages": 28
+      },
+      "3": {
+        "items": [
+          [
+            {
+              "action": "read",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "write",
+              "payload": false,
+              "args": [
+                {
+                  "name": "level",
+                  "required": true,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 1
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 3,
+        "pages": 28,
+        "kind": "gpio",
+        "available": true
+      },
+      "4": {
+        "items": [
+          [
+            {
+              "action": "duty",
+              "payload": false,
+              "args": [
+                {
+                  "name": "duty",
+                  "required": true,
+                  "type": "number",
+                  "min": 0,
+                  "max": 100
+                }
+              ]
+            },
+            {
+              "action": "fade",
+              "payload": false,
+              "args": [
+                {
+                  "name": "duty",
+                  "required": true,
+                  "type": "number",
+                  "min": 0,
+                  "max": 100
+                },
+                {
+                  "name": "duration_ms",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 3600000
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 4,
+        "pages": 28,
+        "kind": "pwm",
+        "available": true
+      },
+      "5": {
+        "items": [
+          [
+            {
+              "action": "read",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 5,
+        "pages": 28,
+        "kind": "adc",
+        "available": true
+      },
+      "6": {
+        "items": [
+          [
+            {
+              "action": "start",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "stop",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "read",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 6,
+        "pages": 28,
+        "kind": "adc.continuous",
+        "available": true
+      },
+      "7": {
+        "items": [
+          [
+            {
+              "action": "write",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "read",
+              "payload": false,
+              "args": [
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            },
+            {
+              "action": "break",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": true,
+                  "type": "string"
+                },
+                {
+                  "name": "bits",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 255
+                }
+              ]
+            },
+            {
+              "action": "drain",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "clear",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "errors",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 7,
+        "pages": 28,
+        "kind": "uart",
+        "available": false
+      },
+      "8": {
+        "items": [
+          [
+            {
+              "action": "probe",
+              "payload": false,
+              "args": [
+                {
+                  "name": "address",
+                  "required": true,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 127
+                }
+              ]
+            },
+            {
+              "action": "scan",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "recover",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 8,
+        "pages": 28,
+        "kind": "i2c.master",
+        "available": true
+      },
+      "9": {
+        "items": [
+          [
+            {
+              "action": "write",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "read",
+              "payload": false,
+              "args": [
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            },
+            {
+              "action": "write_read",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 9,
+        "pages": 28,
+        "kind": "i2c.device",
+        "available": true
+      },
+      "10": {
+        "items": [
+          [
+            {
+              "action": "preload",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "clear_tx",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 10,
+        "pages": 28,
+        "kind": "i2c.slave",
+        "available": false
+      },
+      "11": {
+        "items": [
+          []
+        ],
+        "page": 11,
+        "pages": 28,
+        "kind": "spi.master",
+        "available": false
+      },
+      "12": {
+        "items": [
+          [
+            {
+              "action": "transfer",
+              "payload": false,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "rx_length",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 4096
+                },
+                {
+                  "name": "command",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 65535
+                },
+                {
+                  "name": "address_hex",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "lines",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4
+                }
+              ]
+            },
+            {
+              "action": "result",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 12,
+        "pages": 28,
+        "kind": "spi.device",
+        "available": false
+      },
+      "13": {
+        "items": [
+          [
+            {
+              "action": "queue",
+              "payload": false,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "rx_length",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 4096
+                },
+                {
+                  "name": "command",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 65535
+                },
+                {
+                  "name": "address_hex",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "lines",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4
+                }
+              ]
+            },
+            {
+              "action": "result",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "cancel",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 13,
+        "pages": 28,
+        "kind": "spi.slave",
+        "available": false
+      },
+      "14": {
+        "items": [
+          [
+            {
+              "action": "send",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": true,
+                  "type": "string"
+                },
+                {
+                  "name": "id",
+                  "required": true,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 536870911
+                },
+                {
+                  "name": "extended",
+                  "required": false,
+                  "type": "boolean"
+                },
+                {
+                  "name": "remote",
+                  "required": false,
+                  "type": "boolean"
+                }
+              ]
+            },
+            {
+              "action": "info",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "recover",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 14,
+        "pages": 28,
+        "kind": "twai",
+        "available": false
+      },
+      "15": {
+        "items": [
+          [
+            {
+              "action": "transmit",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "loops",
+                  "required": false,
+                  "type": "integer",
+                  "min": -1,
+                  "max": 1023
+                }
+              ]
+            },
+            {
+              "action": "abort",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "wait",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 15,
+        "pages": 28,
+        "kind": "rmt.tx",
+        "available": true
+      },
+      "16": {
+        "items": [
+          [
+            {
+              "action": "capture",
+              "payload": false,
+              "args": [
+                {
+                  "name": "min_ns",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 4294967295
+                },
+                {
+                  "name": "max_ns",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4294967295
+                }
+              ]
+            },
+            {
+              "action": "result",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "abort",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 16,
+        "pages": 28,
+        "kind": "rmt.rx",
+        "available": true
+      },
+      "17": {
+        "items": [
+          [
+            {
+              "action": "start",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "stop",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "play",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "record",
+              "payload": false,
+              "args": [
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 17,
+        "pages": 28,
+        "kind": "i2s",
+        "available": true
+      },
+      "18": {
+        "items": [
+          [
+            {
+              "action": "density",
+              "payload": false,
+              "args": [
+                {
+                  "name": "density",
+                  "required": true,
+                  "type": "integer",
+                  "min": -128,
+                  "max": 127
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 18,
+        "pages": 28,
+        "kind": "sigma_delta",
+        "available": true
+      },
+      "21": {
+        "items": [],
+        "page": 21,
+        "pages": 28,
+        "operations": [
+          {
+            "op": "hello",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "session.ping",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "event.subscribe",
+            "params": "topics interval_ms",
+            "available": true
+          },
+          {
+            "op": "event.unsubscribe",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "control.acquire",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "control.release",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "outputs.stop",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "capabilities",
+            "params": "page",
+            "available": true
+          },
+          {
+            "op": "state",
+            "params": "page revision",
+            "available": true
+          },
+          {
+            "op": "diagnostics",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "mux.query",
+            "params": "page revision",
+            "available": true
+          },
+          {
+            "op": "mux.preflight",
+            "params": "kind parent controller pins config",
+            "available": true
+          }
+        ]
+      }
+    },
+    "iot": {
+      "0": {
+        "items": [
+          {
+            "pin": 0,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 0,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 1,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 1,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 2,
+            "digital": false,
+            "adc1": false,
+            "chip_adc1_channel": 2,
+            "deep_sleep_wake": false,
+            "reserved": "boot_strap"
+          },
+          {
+            "pin": 3,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 3,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 4,
+            "digital": true,
+            "adc1": true,
+            "chip_adc1_channel": 4,
+            "deep_sleep_wake": true
+          },
+          {
+            "pin": 5,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": true,
+            "analog_unavailable": "adc2_chip_limitation"
+          },
+          {
+            "pin": 6,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 7,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 8,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "boot_strap"
+          },
+          {
+            "pin": 9,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "boot_strap"
+          },
+          {
+            "pin": 10,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 11,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash_voltage"
+          },
+          {
+            "pin": 12,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "status_led"
+          },
+          {
+            "pin": 13,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "load": "onboard_led_D5"
+          },
+          {
+            "pin": 14,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 15,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 16,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 17,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "flash"
+          },
+          {
+            "pin": 18,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "native_usb"
+          },
+          {
+            "pin": 19,
+            "digital": false,
+            "adc1": false,
+            "deep_sleep_wake": false,
+            "reserved": "native_usb"
+          },
+          {
+            "pin": 20,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          },
+          {
+            "pin": 21,
+            "digital": true,
+            "adc1": false,
+            "deep_sleep_wake": false
+          }
+        ],
+        "page": 0,
+        "pages": 28
+      },
+      "1": {
+        "items": [
+          {
+            "kind": "gpio",
+            "available": true,
+            "capacity": 11,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "input output open_drain"
+              },
+              {
+                "name": "pull",
+                "type": "enum",
+                "values": "none up down"
+              },
+              {
+                "name": "level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "drive",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "edge",
+                "type": "enum",
+                "values": "none rising falling any"
+              },
+              {
+                "name": "debounce_us",
+                "type": "integer",
+                "min": 0,
+                "max": 1000000
+              }
+            ]
+          },
+          {
+            "kind": "pwm",
+            "available": true,
+            "capacity": 6,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "frequency",
+                "type": "integer",
+                "min": 1,
+                "max": 40000000
+              },
+              {
+                "name": "resolution",
+                "type": "integer",
+                "min": 1,
+                "max": 14
+              },
+              {
+                "name": "duty",
+                "type": "number",
+                "min": 0,
+                "max": 100
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "end_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "breath_ms",
+                "type": "integer",
+                "min": 0,
+                "max": 3600000
+              }
+            ]
+          },
+          {
+            "kind": "adc",
+            "available": true,
+            "capacity": 4,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "attenuation",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "interval_ms",
+                "type": "integer",
+                "min": 0,
+                "max": 3600000
+              }
+            ]
+          },
+          {
+            "kind": "adc.continuous",
+            "available": false,
+            "capacity": 1,
+            "pin_roles": "ch0 ch1 ch3 ch4",
+            "required_pins": "",
+            "config": [
+              {
+                "name": "attenuation",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "sample_rate",
+                "type": "integer",
+                "min": 611,
+                "max": 83333
+              },
+              {
+                "name": "pool_bytes",
+                "type": "integer",
+                "min": 1024,
+                "max": 8192
+              }
+            ]
+          },
+          {
+            "kind": "uart",
+            "available": true,
+            "capacity": 2,
+            "pin_roles": "tx rx rts cts",
+            "required_pins": "",
+            "config": [
+              {
+                "name": "baud",
+                "type": "integer",
+                "min": 50,
+                "max": 5000000
+              },
+              {
+                "name": "data_bits",
+                "type": "integer",
+                "min": 5,
+                "max": 8
+              },
+              {
+                "name": "parity",
+                "type": "enum",
+                "values": "none even odd"
+              },
+              {
+                "name": "stop_bits",
+                "type": "integer",
+                "min": 1,
+                "max": 2
+              },
+              {
+                "name": "flow_control",
+                "type": "boolean"
+              },
+              {
+                "name": "rx_threshold",
+                "type": "integer",
+                "min": 1,
+                "max": 120
+              },
+              {
+                "name": "invert_mask",
+                "type": "integer",
+                "min": 0,
+                "max": 255
+              },
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "uart rs485"
+              },
+              {
+                "name": "rx_buffer",
+                "type": "integer",
+                "min": 256,
+                "max": 4096
+              },
+              {
+                "name": "tx_buffer",
+                "type": "integer",
+                "min": 256,
+                "max": 4096
+              },
+              {
+                "name": "loopback",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "i2c.master",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "sda scl",
+            "required_pins": "sda scl",
+            "config": [
+              {
+                "name": "pullup",
+                "type": "boolean"
+              },
+              {
+                "name": "glitch_ignore",
+                "type": "integer",
+                "min": 0,
+                "max": 7
+              }
+            ]
+          },
+          {
+            "kind": "i2c.device",
+            "available": true,
+            "capacity": 8,
+            "pin_roles": "",
+            "required_pins": "",
+            "config": [
+              {
+                "name": "address",
+                "type": "integer",
+                "min": 0,
+                "max": 1023
+              },
+              {
+                "name": "address_bits",
+                "type": "integer",
+                "min": 7,
+                "max": 10
+              },
+              {
+                "name": "frequency",
+                "type": "integer",
+                "min": 1000,
+                "max": 400000
+              },
+              {
+                "name": "scl_wait_us",
+                "type": "integer",
+                "min": 0,
+                "max": 1000000
+              }
+            ]
+          },
+          {
+            "kind": "i2c.slave",
+            "available": false,
+            "capacity": 1,
+            "pin_roles": "sda scl",
+            "required_pins": "sda scl",
+            "config": [
+              {
+                "name": "address",
+                "type": "integer",
+                "min": 0,
+                "max": 1023
+              },
+              {
+                "name": "address_bits",
+                "type": "integer",
+                "min": 7,
+                "max": 10
+              },
+              {
+                "name": "pullup",
+                "type": "boolean"
+              },
+              {
+                "name": "buffer_bytes",
+                "type": "integer",
+                "min": 128,
+                "max": 4096
+              }
+            ]
+          },
+          {
+            "kind": "spi.master",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "sclk mosi miso wp hd",
+            "required_pins": "sclk",
+            "config": [
+              {
+                "name": "max_transfer",
+                "type": "integer",
+                "min": 4,
+                "max": 4096
+              },
+              {
+                "name": "quad",
+                "type": "boolean"
+              }
+            ]
+          }
+        ],
+        "page": 1,
+        "pages": 28
+      },
+      "2": {
+        "items": [
+          {
+            "kind": "spi.device",
+            "available": true,
+            "capacity": 6,
+            "pin_roles": "cs",
+            "required_pins": "cs",
+            "config": [
+              {
+                "name": "frequency",
+                "type": "integer",
+                "min": 1000,
+                "max": 80000000
+              },
+              {
+                "name": "mode",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "command_bits",
+                "type": "integer",
+                "min": 0,
+                "max": 16
+              },
+              {
+                "name": "address_bits",
+                "type": "integer",
+                "min": 0,
+                "max": 64
+              },
+              {
+                "name": "dummy_bits",
+                "type": "integer",
+                "min": 0,
+                "max": 256
+              },
+              {
+                "name": "lsb_first",
+                "type": "boolean"
+              },
+              {
+                "name": "half_duplex",
+                "type": "boolean"
+              },
+              {
+                "name": "queue_depth",
+                "type": "integer",
+                "min": 1,
+                "max": 4
+              }
+            ]
+          },
+          {
+            "kind": "spi.slave",
+            "available": false,
+            "capacity": 1,
+            "pin_roles": "sclk mosi miso cs ready",
+            "required_pins": "sclk cs",
+            "config": [
+              {
+                "name": "mode",
+                "type": "integer",
+                "min": 0,
+                "max": 3
+              },
+              {
+                "name": "lsb_first",
+                "type": "boolean"
+              },
+              {
+                "name": "max_transfer",
+                "type": "integer",
+                "min": 4,
+                "max": 4096
+              },
+              {
+                "name": "queue_depth",
+                "type": "integer",
+                "min": 1,
+                "max": 4
+              }
+            ]
+          },
+          {
+            "kind": "twai",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "tx rx",
+            "required_pins": "tx rx",
+            "config": [
+              {
+                "name": "bitrate",
+                "type": "integer",
+                "min": 1000,
+                "max": 1000000
+              },
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "normal listen_only self_test"
+              },
+              {
+                "name": "queue_depth",
+                "type": "integer",
+                "min": 1,
+                "max": 16
+              },
+              {
+                "name": "filter_id",
+                "type": "integer",
+                "min": 0,
+                "max": 536870911
+              },
+              {
+                "name": "filter_mask",
+                "type": "integer",
+                "min": 0,
+                "max": 536870911
+              },
+              {
+                "name": "extended",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "rmt.tx",
+            "available": true,
+            "capacity": 2,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "resolution_hz",
+                "type": "integer",
+                "min": 100000,
+                "max": 40000000
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "carrier_hz",
+                "type": "integer",
+                "min": 0,
+                "max": 10000000
+              },
+              {
+                "name": "carrier_duty",
+                "type": "number",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "idle_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              }
+            ]
+          },
+          {
+            "kind": "rmt.rx",
+            "available": true,
+            "capacity": 2,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "resolution_hz",
+                "type": "integer",
+                "min": 100000,
+                "max": 40000000
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              },
+              {
+                "name": "carrier_hz",
+                "type": "integer",
+                "min": 0,
+                "max": 10000000
+              },
+              {
+                "name": "carrier_duty",
+                "type": "number",
+                "min": 0,
+                "max": 1
+              },
+              {
+                "name": "idle_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              }
+            ]
+          },
+          {
+            "kind": "i2s",
+            "available": false,
+            "capacity": 1,
+            "pin_roles": "bclk ws din dout mclk",
+            "required_pins": "bclk",
+            "config": [
+              {
+                "name": "mode",
+                "type": "enum",
+                "values": "standard tdm pdm"
+              },
+              {
+                "name": "role",
+                "type": "enum",
+                "values": "master slave"
+              },
+              {
+                "name": "direction",
+                "type": "enum",
+                "values": "tx rx duplex"
+              },
+              {
+                "name": "sample_rate",
+                "type": "integer",
+                "min": 1000,
+                "max": 6144000
+              },
+              {
+                "name": "bits",
+                "type": "integer",
+                "min": 8,
+                "max": 32
+              },
+              {
+                "name": "slots",
+                "type": "integer",
+                "min": 1,
+                "max": 16
+              },
+              {
+                "name": "slot_mask",
+                "type": "integer",
+                "min": 1,
+                "max": 65535
+              },
+              {
+                "name": "dma_frames",
+                "type": "integer",
+                "min": 16,
+                "max": 512
+              },
+              {
+                "name": "left_align",
+                "type": "boolean"
+              },
+              {
+                "name": "bit_shift",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "sigma_delta",
+            "available": false,
+            "capacity": 4,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "sample_rate",
+                "type": "integer",
+                "min": 1000,
+                "max": 20000000
+              },
+              {
+                "name": "density",
+                "type": "integer",
+                "min": -128,
+                "max": 127
+              },
+              {
+                "name": "invert",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "kind": "timer",
+            "available": true,
+            "capacity": 4,
+            "pin_roles": "pin",
+            "required_pins": "pin",
+            "config": [
+              {
+                "name": "high_ms",
+                "type": "integer",
+                "min": 10,
+                "max": 3600000
+              },
+              {
+                "name": "low_ms",
+                "type": "integer",
+                "min": 10,
+                "max": 3600000
+              },
+              {
+                "name": "count",
+                "type": "integer",
+                "min": 0,
+                "max": 100000
+              },
+              {
+                "name": "end_level",
+                "type": "integer",
+                "min": 0,
+                "max": 1
+              }
+            ]
+          },
+          {
+            "kind": "temperature",
+            "available": true,
+            "capacity": 1,
+            "pin_roles": "",
+            "required_pins": "",
+            "config": []
+          }
+        ],
+        "page": 2,
+        "pages": 28
+      },
+      "3": {
+        "items": [
+          [
+            {
+              "action": "read",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "write",
+              "payload": false,
+              "args": [
+                {
+                  "name": "level",
+                  "required": true,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 1
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 3,
+        "pages": 28,
+        "kind": "gpio",
+        "available": true
+      },
+      "4": {
+        "items": [
+          [
+            {
+              "action": "duty",
+              "payload": false,
+              "args": [
+                {
+                  "name": "duty",
+                  "required": true,
+                  "type": "number",
+                  "min": 0,
+                  "max": 100
+                }
+              ]
+            },
+            {
+              "action": "fade",
+              "payload": false,
+              "args": [
+                {
+                  "name": "duty",
+                  "required": true,
+                  "type": "number",
+                  "min": 0,
+                  "max": 100
+                },
+                {
+                  "name": "duration_ms",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 3600000
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 4,
+        "pages": 28,
+        "kind": "pwm",
+        "available": true
+      },
+      "5": {
+        "items": [
+          [
+            {
+              "action": "read",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 5,
+        "pages": 28,
+        "kind": "adc",
+        "available": true
+      },
+      "6": {
+        "items": [
+          [
+            {
+              "action": "start",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "stop",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "read",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 6,
+        "pages": 28,
+        "kind": "adc.continuous",
+        "available": false
+      },
+      "7": {
+        "items": [
+          [
+            {
+              "action": "write",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "read",
+              "payload": false,
+              "args": [
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            },
+            {
+              "action": "break",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": true,
+                  "type": "string"
+                },
+                {
+                  "name": "bits",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 255
+                }
+              ]
+            },
+            {
+              "action": "drain",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "clear",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "errors",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 7,
+        "pages": 28,
+        "kind": "uart",
+        "available": true
+      },
+      "8": {
+        "items": [
+          [
+            {
+              "action": "probe",
+              "payload": false,
+              "args": [
+                {
+                  "name": "address",
+                  "required": true,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 127
+                }
+              ]
+            },
+            {
+              "action": "scan",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "recover",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 8,
+        "pages": 28,
+        "kind": "i2c.master",
+        "available": true
+      },
+      "9": {
+        "items": [
+          [
+            {
+              "action": "write",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "read",
+              "payload": false,
+              "args": [
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            },
+            {
+              "action": "write_read",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 9,
+        "pages": 28,
+        "kind": "i2c.device",
+        "available": true
+      },
+      "10": {
+        "items": [
+          [
+            {
+              "action": "preload",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "clear_tx",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 10,
+        "pages": 28,
+        "kind": "i2c.slave",
+        "available": false
+      },
+      "11": {
+        "items": [
+          []
+        ],
+        "page": 11,
+        "pages": 28,
+        "kind": "spi.master",
+        "available": true
+      },
+      "12": {
+        "items": [
+          [
+            {
+              "action": "transfer",
+              "payload": false,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "rx_length",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 4096
+                },
+                {
+                  "name": "command",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 65535
+                },
+                {
+                  "name": "address_hex",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "lines",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4
+                }
+              ]
+            },
+            {
+              "action": "result",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 12,
+        "pages": 28,
+        "kind": "spi.device",
+        "available": true
+      },
+      "13": {
+        "items": [
+          [
+            {
+              "action": "queue",
+              "payload": false,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "rx_length",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 4096
+                },
+                {
+                  "name": "command",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 65535
+                },
+                {
+                  "name": "address_hex",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "lines",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4
+                }
+              ]
+            },
+            {
+              "action": "result",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "cancel",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 13,
+        "pages": 28,
+        "kind": "spi.slave",
+        "available": false
+      },
+      "14": {
+        "items": [
+          [
+            {
+              "action": "send",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": true,
+                  "type": "string"
+                },
+                {
+                  "name": "id",
+                  "required": true,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 536870911
+                },
+                {
+                  "name": "extended",
+                  "required": false,
+                  "type": "boolean"
+                },
+                {
+                  "name": "remote",
+                  "required": false,
+                  "type": "boolean"
+                }
+              ]
+            },
+            {
+              "action": "info",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "recover",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 14,
+        "pages": 28,
+        "kind": "twai",
+        "available": true
+      },
+      "15": {
+        "items": [
+          [
+            {
+              "action": "transmit",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                },
+                {
+                  "name": "loops",
+                  "required": false,
+                  "type": "integer",
+                  "min": -1,
+                  "max": 1023
+                }
+              ]
+            },
+            {
+              "action": "abort",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "wait",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 15,
+        "pages": 28,
+        "kind": "rmt.tx",
+        "available": true
+      },
+      "16": {
+        "items": [
+          [
+            {
+              "action": "capture",
+              "payload": false,
+              "args": [
+                {
+                  "name": "min_ns",
+                  "required": false,
+                  "type": "integer",
+                  "min": 0,
+                  "max": 4294967295
+                },
+                {
+                  "name": "max_ns",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4294967295
+                }
+              ]
+            },
+            {
+              "action": "result",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "abort",
+              "payload": false,
+              "args": []
+            }
+          ]
+        ],
+        "page": 16,
+        "pages": 28,
+        "kind": "rmt.rx",
+        "available": true
+      },
+      "17": {
+        "items": [
+          [
+            {
+              "action": "start",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "stop",
+              "payload": false,
+              "args": []
+            },
+            {
+              "action": "play",
+              "payload": true,
+              "args": [
+                {
+                  "name": "data",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "name": "buffer_id",
+                  "required": false,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 2147483647
+                }
+              ]
+            },
+            {
+              "action": "record",
+              "payload": false,
+              "args": [
+                {
+                  "name": "length",
+                  "required": true,
+                  "type": "integer",
+                  "min": 1,
+                  "max": 4096
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 17,
+        "pages": 28,
+        "kind": "i2s",
+        "available": false
+      },
+      "18": {
+        "items": [
+          [
+            {
+              "action": "density",
+              "payload": false,
+              "args": [
+                {
+                  "name": "density",
+                  "required": true,
+                  "type": "integer",
+                  "min": -128,
+                  "max": 127
+                }
+              ]
+            }
+          ]
+        ],
+        "page": 18,
+        "pages": 28,
+        "kind": "sigma_delta",
+        "available": false
+      },
+      "21": {
+        "items": [],
+        "page": 21,
+        "pages": 28,
+        "operations": [
+          {
+            "op": "hello",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "session.ping",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "event.subscribe",
+            "params": "topics interval_ms",
+            "available": true
+          },
+          {
+            "op": "event.unsubscribe",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "control.acquire",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "control.release",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "outputs.stop",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "capabilities",
+            "params": "page",
+            "available": true
+          },
+          {
+            "op": "state",
+            "params": "page revision",
+            "available": true
+          },
+          {
+            "op": "diagnostics",
+            "params": "",
+            "available": true
+          },
+          {
+            "op": "mux.query",
+            "params": "page revision",
+            "available": true
+          },
+          {
+            "op": "mux.preflight",
+            "params": "kind parent controller pins config",
+            "available": true
+          }
+        ]
+      }
+    }
+  }
+}

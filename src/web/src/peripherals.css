@@ -1,0 +1,197 @@
+/* The frame stays fixed; only its catalog and detail content scroll. */
+.peripherals-main {
+  overflow: hidden;
+}
+.peripherals-main > .page-heading {
+  flex-shrink: 0;
+}
+.peripheral-workspace {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.peripheral-catalog {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 12px;
+  scrollbar-width: thin;
+}
+.peripheral-catalog > h2 {
+  font-size: 13px;
+  line-height: 20px;
+  margin: 0 12px 4px;
+}
+.peripheral-catalog > .muted {
+  margin: 0 12px 12px;
+}
+.peripheral-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.peripheral-entry {
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  background: transparent;
+  font-weight: 400;
+  transition:
+    background-color var(--av-transition),
+    color var(--av-transition);
+}
+.peripheral-entry strong {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+}
+.peripheral-entry small {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-primary);
+}
+.peripheral-entry[aria-pressed='true'] {
+  background: var(--selected);
+}
+.peripheral-entry[aria-pressed='true'] strong {
+  font-weight: 500;
+}
+.peripheral-entry:hover:not([aria-pressed='true']) {
+  background: var(--hover);
+}
+.peripheral-unavailable {
+  margin: 12px 0 0;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.peripheral-unavailable > summary {
+  padding: 6px 12px;
+  font-size: 12px;
+  line-height: 20px;
+}
+.peripheral-unavailable-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  color: var(--text-secondary);
+}
+.peripheral-unavailable-entry strong {
+  font-size: 13px;
+  line-height: 20px;
+}
+.peripheral-unavailable-entry small {
+  font-size: 12px;
+  line-height: 18px;
+}
+.peripheral-detail {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 0 4px 8px 0;
+}
+.peripheral-detail > h2 {
+  font-size: 16px;
+  line-height: 24px;
+  margin: 0 0 16px;
+}
+.peripheral-detail > form {
+  margin: 0 0 24px;
+}
+.peripheral-detail .fields {
+  margin-block: 12px;
+}
+.peripheral-empty {
+  padding: 16px;
+  color: var(--text-secondary);
+}
+.peripheral-empty h2 {
+  color: var(--text-primary);
+}
+.peripheral-snapshot {
+  margin: 16px 0 0;
+}
+.peripheral-snapshot > summary {
+  font-size: 12px;
+}
+.peripheral-snapshot pre {
+  max-height: 240px;
+}
+.peripherals-main > .diagnostic-bar {
+  flex-shrink: 0;
+  min-height: 24px;
+  padding-top: 0;
+  margin-top: 16px;
+  gap: 12px;
+}
+.peripherals-main > .diagnostic-bar button {
+  min-height: 24px;
+  padding-block: 0;
+}
+.peripheral-catalog:focus-visible,
+.peripheral-detail:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+/* The homepage LED is the same component in both contexts. */
+.home-led {
+  container-type: inline-size;
+  container-name: led-panel;
+}
+@container led-panel (max-width: 900px) {
+  .home-led-body {
+    grid-template-columns: 216px minmax(0, 1fr);
+  }
+  .led-controls {
+    grid-column: 1 / -1;
+  }
+}
+@container led-panel (max-width: 560px) {
+  .home-led-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-led-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+@container (max-width: 760px) {
+  .peripheral-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(120px, 32%) minmax(0, 1fr);
+    gap: 16px;
+  }
+  .peripheral-catalog {
+    padding-right: 0;
+  }
+}
+@media (max-width: 999px), (max-height: 649px) {
+  .peripherals-main {
+    overflow: visible;
+  }
+  .peripheral-workspace {
+    overflow: visible;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
+  .peripheral-catalog {
+    max-height: 240px;
+    padding-right: 0;
+  }
+  .peripheral-detail {
+    overflow: visible;
+    padding: 0;
+  }
+}
+.peripheral-entry[aria-pressed='true']:hover {
+  background: var(--selected);
+}
